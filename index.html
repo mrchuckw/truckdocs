@@ -1,0 +1,4353 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TruckDocs App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Change this number when you make an update -->
+    <script>
+        const APP_VERSION = '1.1.28';
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            text-align: center;
+        }
+
+        .header {
+            background: var(--menuButtonColor, #8b5e3c);           
+            color: white;
+            padding: 15px;
+            font-size: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .odometer-box {
+            font-size: 16px;
+        }
+
+        .odometer-box input {
+            width: 120px;
+            padding: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .version-box {
+            width: 170px;
+            font-size: 16px;
+            text-align: right;
+        }
+
+        .version-box span {
+            display: inline-block;
+            min-width: 75px;
+            padding: 5px;
+            background: white;
+            color: #2c3e50;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .menu {
+            display: grid;
+            width: 88%;
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 20px;
+            grid-template-columns: repeat(2, minmax(260px, 1fr));
+            gap: 14px;
+        }
+
+        .menu button {
+            width: 100%;
+            padding: 18px;
+            margin: 0;
+            font-size: 20px;
+            border: none;
+            border-radius: 10px;
+            background-color: var(--home-menu-button-bg, #3498db);
+            color: var(--home-menu-button-text, white);
+            cursor: pointer;
+        }
+
+        .home-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 14px 24px;
+            margin: 8px auto 18px auto;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .inspection-prep-box {
+            width: 85%;
+            max-width: 850px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .inspection-start-button {
+            background-color: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 16px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .doc-row {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .doc-info {
+            width: 280px;
+            text-align: left;
+        }
+
+        .doc-photo {
+            width: 320px;
+            text-align: center;
+        }
+
+        .pm-grid {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 70px;
+            flex-wrap: wrap;
+        }
+
+        .pm-column {
+            width: 360px;
+        }
+
+        .pm-column h3.pm-column-title {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        .pm-name-input {
+            width: 170px;
+            padding: 4px;
+            font-size: 14px;
+        }
+
+        .preview-image,
+        .inspection-image {
+            max-width: 300px;
+            border: 2px solid #444;
+            cursor: pointer;
+        }
+
+        .fullscreen-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 95vw;
+            max-height: 95vh;
+            z-index: 9999;
+            background: white;
+        }
+
+        .status {
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .saved-message {
+            color: green;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .doc-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 14px;
+            margin-top: 10px;
+            margin-right: 8px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .delete-button {
+            background-color: #c0392b;
+        }
+
+        .bol-packet-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 35px;
+            margin-top: 35px;
+            margin-bottom: 35px;
+        }
+
+        .bol-left {
+            width: 320px;
+            min-width: 320px;
+            text-align: left;
+        }
+
+        .bol-right {
+            width: 370px;
+            text-align: left;
+        }
+
+        .bol-right img {
+            max-width: 360px;
+        }
+
+
+
+        .inspection-actions {
+            width: 85%;
+            max-width: 900px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: left;
+        }
+
+        .inspection-actions input[type="email"] {
+            width: 280px;
+            max-width: 90%;
+            padding: 8px;
+            font-size: 15px;
+        }
+
+        .inspection-list {
+            width: 90%;
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        .inspection-select {
+            transform: scale(1.35);
+            margin-right: 10px;
+        }
+
+        .inspection-note {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+
+
+        .lockdown-warning {
+            width: 85%;
+            max-width: 900px;
+            margin: 20px auto;
+            background: #fff3cd;
+            border: 2px solid #f1c40f;
+            border-radius: 10px;
+            padding: 15px;
+            color: #7a5b00;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .inspection-lock-bar {
+            width: 85%;
+            max-width: 900px;
+            margin: 10px auto 20px auto;
+            background: #2c3e50;
+            color: white;
+            border-radius: 10px;
+            padding: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .exit-lock-button {
+            background-color: #c0392b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 18px;
+            margin-top: 12px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+
+        .fullscreen-exit-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            color: white;
+            z-index: 10000;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .fullscreen-exit-overlay .overlay-box {
+            max-width: 760px;
+            margin: 12vh auto;
+            background: #2c3e50;
+            border: 3px solid #c0392b;
+            border-radius: 14px;
+            padding: 28px;
+            line-height: 1.5;
+        }
+
+        .fullscreen-exit-overlay h2 {
+            color: #ffdddd;
+            margin-top: 0;
+        }
+
+        .fullscreen-exit-overlay button {
+            margin: 10px;
+            padding: 14px 20px;
+            font-size: 17px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .fullscreen-return-button {
+            background: #3498db;
+            color: white;
+        }
+
+        .fullscreen-pin-button {
+            background: #c0392b;
+            color: white;
+        }
+
+
+
+        .receipt-form,
+        .receipt-totals,
+        .receipt-card {
+            width: 85%;
+            max-width: 950px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: left;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+        }
+
+        .receipt-form input,
+        .receipt-form select,
+        .receipt-form textarea,
+        .receipt-filter-row select {
+            width: 260px;
+            max-width: 95%;
+            padding: 8px;
+            font-size: 15px;
+            margin-top: 4px;
+        }
+
+        .receipt-form textarea {
+            min-height: 70px;
+        }
+
+        .receipt-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .receipt-card-info {
+            min-width: 260px;
+            flex: 1;
+        }
+
+        .receipt-thumb {
+            max-width: 220px;
+            max-height: 220px;
+            border: 2px solid #444;
+            cursor: pointer;
+        }
+
+        .receipt-pdf-box {
+            width: 220px;
+            min-height: 120px;
+            border: 2px dashed #555;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: #f9f9f9;
+            padding: 12px;
+        }
+
+        .receipt-filter-row {
+            width: 85%;
+            max-width: 950px;
+            margin: 15px auto;
+            text-align: left;
+        }
+
+
+        .home-background-layer {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            opacity: 0.18;
+            filter: saturate(0.9) contrast(1.05);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .home-background-layer::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(244, 244, 244, 0.35);
+        }
+
+        .header,
+        #mainMenu,
+        #driverScreen,
+        #truckScreen,
+        #trailerScreen,
+        #permitsScreen,
+        #inspectionPrepScreen,
+        #inspectionScreen,
+        #backupScreen,
+        #bolScreen,
+        #receiptVaultScreen,
+        #maintenanceScreen,
+        #settingsScreen {
+            position: relative;
+            z-index: 1;
+        }
+
+        #mainMenu.home-menu-over-bg button {
+            box-shadow: 0 4px 14px rgba(0,0,0,0.20);
+            background-color: var(--home-menu-button-bg-soft, rgba(52, 152, 219, 0.94));
+        }
+
+        .home-bg-settings-box {
+            margin-top: 25px;
+            padding-top: 18px;
+            border-top: 1px solid #ccc;
+        }
+
+        .home-bg-preview {
+            max-width: 280px;
+            border: 2px solid #444;
+            margin-top: 12px;
+            display: none;
+        }
+
+
+        .settings-grid {
+            width: 90%;
+            max-width: 1150px;
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(260px, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.14);
+        }
+
+        .settings-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .settings-card input,
+        .settings-card select,
+        .settings-card textarea {
+            width: 95%;
+            max-width: 280px;
+            padding: 8px;
+            font-size: 15px;
+            margin-top: 4px;
+        }
+
+        .settings-card .doc-button {
+            width: auto;
+        }
+
+        .color-preview-line {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 10px;
+            background: var(--home-menu-button-bg, #3498db);
+            color: var(--home-menu-button-text, white);
+            text-align: center;
+            font-weight: bold;
+        }
+
+
+        .status-ok {
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        .status-warn {
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .status-bad {
+            color: #ff4d4d;
+            font-weight: bold;
+        }
+
+
+/* ==================== TAB TOP BAR ==================== */
+.screen-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--menuButtonColor, #2c3e50);
+    color: white;
+    padding: 12px 18px;
+    margin: -20px -20px 20px -20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+
+    /* IMPORTANT */
+    position: relative;
+}
+
+/* HOME BUTTON AREA */
+.screen-topbar .topbar-left {
+    position: absolute;
+
+    /* halfway between left edge and centered title */
+    left: 25%;
+
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* PAGE TITLE */
+.screen-topbar .topbar-center {
+    flex: 1;
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+/* RIGHT SIDE */
+.screen-topbar .topbar-right {
+    position: absolute;
+    right: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+/* HOME BUTTON */
+.screen-home-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+
+    .screen-topbar .topbar-left {
+        left: 15px;
+        transform: none;
+    }
+
+    .screen-topbar .topbar-center {
+        font-size: 19px;
+    }
+
+    .screen-home-button {
+        padding: 9px 12px;
+        font-size: 15px;
+    }
+
+    .menu {
+        width: 92%;
+        grid-template-columns: 1fr;
+    }
+
+    .doc-row,
+    .bol-packet-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .doc-info,
+    .bol-left,
+    .bol-right,
+    .pm-column {
+        width: 90%;
+        min-width: 90%;
+        text-align: center;
+    }
+
+    .version-box {
+        text-align: center;
+        width: 120px;
+    }
+
+    .settings-grid {
+        grid-template-columns: 1fr;
+        width: 92%;
+    }
+}
+
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="odometer-box">
+        Odometer:
+        <input id="odometerInput"
+               type="text"
+               placeholder="miles"
+               oninput="saveOdometer(this.value)">
+    </div>
+
+    <div>TruckDocs App</div>
+
+    <div class="version-box">
+        Ver:
+        <span id="versionNumber"></span>
+    </div>
+</div>
+
+<div id="homeBackgroundLayer" class="home-background-layer"></div>
+
+
+<!-- Home Menu -->
+<div id="mainMenu" class="menu">
+    <button id="driverMenuBtn" onclick="showDriver()">Driver Documents</button>
+    <button id="inspectionMenuBtn" onclick="showInspectionPrep()">Inspection Mode</button>
+    <button id="truckMenuBtn" onclick="showTruck()">Truck Documents</button>
+    <button id="permitsMenuBtn" onclick="showPermits()">Permits</button>
+    <button id="trailerMenuBtn" onclick="showTrailer()">Trailer Documents</button>
+    <button>IFTA Reports</button>
+    <button id="bolMenuBtn" onclick="showBOL()">Load / BOL</button>
+    <button>ELD Reports</button>
+    <button id="maintenanceMenuBtn"
+        class="menu-button"
+        onclick="showMaintenance()"> Preventative Maintenance </button>
+    <button id="receiptMenuBtn" onclick="showReceiptVault()">Receipt Vault</button>
+    <button class="menu-button" onclick="showBackup()">Backup / Restore</button>
+    <button class="menu-button" onclick="showSettings()">TruckDocs App Settings</button>
+
+</div>
+
+<!-- INSPECTION PREP SCREEN -->
+<div id="inspectionPrepScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Prepare Inspection Mode</div>
+        <div class="topbar-right"></div>
+    </div>
+
+    <div class="inspection-prep-box">
+        <h3>Before handing the device to an officer</h3>
+
+        <p><strong>TruckDocs locks the app screen. The tablet or phone must provide the true device lock.</strong></p>
+
+        <p>
+            Before handing the device to an officer, start one of these device-level protections:
+        </p>
+
+        <ul>
+            <li><strong>iPad / iPhone:</strong> Guided Access</li>
+            <li><strong>Android:</strong> App Pinning / Screen Pinning</li>
+        </ul>
+
+        <p>
+            This keeps the officer from leaving TruckDocs, opening other apps, opening other browser tabs, or browsing files.
+        </p>
+
+        <p style="color:#c0392b; font-weight:bold;">
+            Browser fullscreen is helpful for presentation, but it is not a substitute for Guided Access or App Pinning.
+        </p>
+
+        <label style="font-weight:bold;">
+            <input id="deviceLockConfirm" type="checkbox">
+            I have enabled Guided Access / App Pinning, or I understand that browser fullscreen alone does not lock the whole device.
+        </label>
+
+        <br><br>
+
+        <button id="inspectionStartBtn"
+                class="inspection-start-button"
+                onclick="startInspectionLockdown()">
+            Double Tap to Start Inspection Mode
+        </button>
+
+        <p class="inspection-note">
+            Tap once to arm the button. Tap again within 3 seconds to start locked Inspection Mode.
+            Driver PIN will be required to exit the TruckDocs inspection screen.
+        </p>
+    </div>
+
+</div>
+
+
+
+<!-- LOAD / BOL SCREEN -->
+<div id="bolScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Load / BOL</div>
+        <div class="topbar-right"></div>
+    </div>
+
+    <br><br>
+
+    <button class="doc-button" onclick="createBOLPacket()">
+        Add New Load Packet
+    </button>
+
+    <div id="bolList"></div>
+
+    <br><br>
+
+    <button class="doc-button delete-button"
+            onclick="localStorage.removeItem('bolPackets'); renderBOLPackets(); updateAllMenuStatuses();">
+        Reset Load Packets
+    </button>
+
+</div>
+
+
+<!-- BACKUP SCREEN -->
+<div id="backupScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Backup / Restore</div>
+        <div class="topbar-right"></div>
+    </div>
+
+    <br><br><br>
+
+    <button class="doc-button" onclick="exportBackup()">
+        Export Backup
+    </button>
+
+    <br><br>
+
+    <input type="file"
+           id="importBackupFile"
+           accept=".json,application/json,text/plain"
+           onchange="importBackup(event)">
+
+    <br><br>
+
+    <div id="backupStatus"></div>
+
+    <p class="inspection-note">
+        Restore only the file named like TruckDocs-Backup-YYYY-MM-DD.json.
+        Do not choose index.html for restore.
+    </p>
+
+</div>
+
+
+<!-- DRIVER SCREEN -->
+<div id="driverScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Driver Documents</div>
+        <div class="topbar-right"></div>
+    </div>
+
+    <div class="doc-row">
+        <div class="doc-info">
+            <h3>Driver License</h3>
+            <label>Expiration Date:</label><br>
+            <input id="licenseFrontDateInput" type="date" onchange="saveDate('licenseFrontDate', this.value)">
+            <div id="licenseFrontStatus" class="status"></div>
+
+            <div id="licenseFrontUploadBox"><br>
+                <input id="licenseFrontFileInput" type="file" accept="image/*,.pdf" capture="environment" onchange="saveDocument(event, 'licenseFront')">
+            </div>
+
+            <div id="licenseFrontSaved" class="saved-message"></div>
+
+            <div id="licenseFrontControls" style="display:none;">
+                <button class="doc-button" onclick="replaceDocument('licenseFront')">Replace Document</button>
+                <button class="doc-button delete-button" onclick="deleteDocument('licenseFront')">Delete Document</button>
+            </div>
+        </div>
+
+        <div class="doc-photo">
+            <img id="licenseFrontPreview" class="preview-image" style="display:none;" onclick="toggleFullScreen(this)">
+        </div>
+    </div>
+
+    <div class="doc-row">
+        <div class="doc-info">
+            <h3>Medical Card</h3>
+            <label>Expiration Date:</label><br>
+            <input id="medicalCardDateInput" type="date" onchange="saveDate('medicalCardDate', this.value)">
+            <div id="medicalCardStatus" class="status"></div>
+
+            <div id="medicalCardUploadBox"><br>
+                <input id="medicalCardFileInput" type="file" accept="image/*,.pdf" capture="environment" onchange="saveDocument(event, 'medicalCard')">
+            </div>
+
+            <div id="medicalCardSaved" class="saved-message"></div>
+
+            <div id="medicalCardControls" style="display:none;">
+                <button class="doc-button" onclick="replaceDocument('medicalCard')">Replace Document</button>
+                <button class="doc-button delete-button" onclick="deleteDocument('medicalCard')">Delete Document</button>
+            </div>
+        </div>
+
+        <div class="doc-photo">
+            <img id="medicalCardPreview" class="preview-image" style="display:none;" onclick="toggleFullScreen(this)">
+        </div>
+    </div>
+
+</div>
+
+
+
+<!-- TRUCK SCREEN -->
+<div id="truckScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Truck Documents</div>
+        <div class="topbar-right"></div>
+    </div>
+
+
+
+<div class="doc-row">
+    <div class="doc-info">
+
+        <h3>Truck Registration</h3>
+
+        <label>Expiration Date:</label><br>
+
+        <input id="truckRegistrationDateInput"
+               type="date"
+               onchange="saveDate('truckRegistrationDate', this.value)">
+
+        <div id="truckRegistrationStatus" class="status"></div>
+
+        <div id="truckRegistrationUploadBox"><br>
+
+            <input id="truckRegistrationFileInput"
+                   type="file"
+                   accept="image/*"
+                   capture="environment"
+                   onchange="saveDocument(event, 'truckRegistration')">
+
+        </div>
+
+        <div id="truckRegistrationSaved"
+             class="saved-message"></div>
+
+        <div id="truckRegistrationControls"
+             style="display:none;">
+
+            <button class="doc-button"
+                    onclick="replaceDocument('truckRegistration')">
+                Replace Document
+            </button>
+
+            <button class="doc-button delete-button"
+                    onclick="deleteDocument('truckRegistration')">
+                Delete Document
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="doc-photo">
+
+        <img id="truckRegistrationPreview"
+             class="preview-image"
+             style="display:none;"
+             onclick="toggleFullScreen(this)">
+
+    </div>
+
+</div>
+
+
+
+<div class="doc-row">
+    <div class="doc-info">
+        <h3>Truck Insurance</h3>
+
+        <label>Expiration Date:</label><br>
+        <input id="truckInsuranceDateInput"
+               type="date"
+               onchange="saveDate('truckInsuranceDate', this.value)">
+
+        <div id="truckInsuranceStatus" class="status"></div>
+
+        <div id="truckInsuranceUploadBox"><br>
+            <input id="truckInsuranceFileInput"
+                   type="file"
+                   accept="image/*"
+                   capture="environment"
+                   onchange="saveDocument(event, 'truckInsurance')">
+        </div>
+
+        <div id="truckInsuranceSaved" class="saved-message"></div>
+
+        <div id="truckInsuranceControls" style="display:none;">
+            <button class="doc-button"
+                    onclick="replaceDocument('truckInsurance')">
+                Replace Document
+            </button>
+
+            <button class="doc-button delete-button"
+                    onclick="deleteDocument('truckInsurance')">
+                Delete Document
+            </button>
+        </div>
+    </div>
+
+    <div class="doc-photo">
+        <img id="truckInsurancePreview"
+             class="preview-image"
+             style="display:none;"
+             onclick="toggleFullScreen(this)">
+    </div>
+</div> 
+
+
+
+
+<div class="doc-row">
+    <div class="doc-info">
+
+        <h3>Truck Annual Inspection</h3>
+
+        <label>Expiration Date:</label><br>
+
+        <input id="truckAnnualInspectionDateInput"
+               type="date"
+               onchange="saveDate('truckAnnualInspectionDate', this.value)">
+
+        <div id="truckAnnualInspectionStatus" class="status"></div>
+
+        <div id="truckAnnualInspectionUploadBox"><br>
+
+            <input id="truckAnnualInspectionFileInput"
+                   type="file"
+                   accept="image/*"
+                   capture="environment"
+                   onchange="saveDocument(event, 'truckAnnualInspection')">
+
+        </div>
+
+        <div id="truckAnnualInspectionSaved"
+             class="saved-message"></div>
+
+        <div id="truckAnnualInspectionControls"
+             style="display:none;">
+
+            <button class="doc-button"
+                    onclick="replaceDocument('truckAnnualInspection')">
+                Replace Document
+            </button>
+
+            <button class="doc-button delete-button"
+                    onclick="deleteDocument('truckAnnualInspection')">
+                Delete Document
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="doc-photo">
+
+        <img id="truckAnnualInspectionPreview"
+             class="preview-image"
+             style="display:none;"
+             onclick="toggleFullScreen(this)">
+
+    </div>
+
+</div>
+
+
+
+
+
+ <div class="doc-row">
+    <div class="doc-info">
+
+        <h3>Cab Card</h3>
+
+        <label>Expiration Date:</label><br>
+
+        <input id="truckCabCardDateInput"
+               type="date"
+               onchange="saveDate('truckCabCardDate', this.value)">
+
+        <div id="truckCabCardStatus" class="status"></div>
+
+        <div id="truckCabCardUploadBox"><br>
+
+            <input id="truckCabCardFileInput"
+                   type="file"
+                   accept="image/*"
+                   capture="environment"
+                   onchange="saveDocument(event, 'truckCabCard')">
+
+        </div>
+
+        <div id="truckCabCardSaved"
+             class="saved-message"></div>
+
+        <div id="truckCabCardControls"
+             style="display:none;">
+
+            <button class="doc-button"
+                    onclick="replaceDocument('truckCabCard')">
+                Replace Document
+            </button>
+
+            <button class="doc-button delete-button"
+                    onclick="deleteDocument('truckCabCard')">
+                Delete Document
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="doc-photo">
+
+        <img id="truckCabCardPreview"
+             class="preview-image"
+             style="display:none;"
+             onclick="toggleFullScreen(this)">
+
+    </div>
+
+</div>
+
+</div>
+
+
+
+<!-- TRAILER SCREEN -->
+<div id="trailerScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Trailer Documents</div>
+        <div class="topbar-right"></div>
+    </div>
+
+    <!-- TRAILER REGISTRATION -->
+    <div class="doc-row">
+
+        <div class="doc-info">
+
+            <h3>Trailer Registration</h3>
+
+            <label>Expiration Date:</label><br>
+
+            <input id="trailerRegistrationDateInput"
+                   type="date"
+                   onchange="saveDate('trailerRegistrationDate', this.value)">
+
+            <div id="trailerRegistrationStatus" class="status"></div>
+
+            <div id="trailerRegistrationUploadBox"><br>
+
+                <input id="trailerRegistrationFileInput"
+                       type="file"
+                       accept="image/*"
+                       capture="environment"
+                       onchange="saveDocument(event, 'trailerRegistration')">
+
+            </div>
+
+            <div id="trailerRegistrationSaved"
+                 class="saved-message"></div>
+
+            <div id="trailerRegistrationControls"
+                 style="display:none;">
+
+                <button class="doc-button"
+                        onclick="replaceDocument('trailerRegistration')">
+                    Replace Document
+                </button>
+
+                <button class="doc-button delete-button"
+                        onclick="deleteDocument('trailerRegistration')">
+                    Delete Document
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="doc-photo">
+
+            <img id="trailerRegistrationPreview"
+                 class="preview-image"
+                 style="display:none;"
+                 onclick="toggleFullScreen(this)">
+
+        </div>
+
+    </div>
+
+
+    <!-- TRAILER INSURANCE -->
+    <div class="doc-row">
+
+        <div class="doc-info">
+
+            <h3>Trailer Insurance</h3>
+
+            <label>Expiration Date:</label><br>
+
+            <input id="trailerInsuranceDateInput"
+                   type="date"
+                   onchange="saveDate('trailerInsuranceDate', this.value)">
+
+            <div id="trailerInsuranceStatus" class="status"></div>
+
+            <div id="trailerInsuranceUploadBox"><br>
+
+                <input id="trailerInsuranceFileInput"
+                       type="file"
+                       accept="image/*"
+                       capture="environment"
+                       onchange="saveDocument(event, 'trailerInsurance')">
+
+            </div>
+
+            <div id="trailerInsuranceSaved"
+                 class="saved-message"></div>
+
+            <div id="trailerInsuranceControls"
+                 style="display:none;">
+
+                <button class="doc-button"
+                        onclick="replaceDocument('trailerInsurance')">
+                    Replace Document
+                </button>
+
+                <button class="doc-button delete-button"
+                        onclick="deleteDocument('trailerInsurance')">
+                    Delete Document
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="doc-photo">
+
+            <img id="trailerInsurancePreview"
+                 class="preview-image"
+                 style="display:none;"
+                 onclick="toggleFullScreen(this)">
+
+        </div>
+
+    </div>
+
+
+    <!-- TRAILER ANNUAL INSPECTION -->
+    <div class="doc-row">
+
+        <div class="doc-info">
+
+            <h3>Trailer Annual Inspection</h3>
+
+            <label>Expiration Date:</label><br>
+
+            <input id="trailerInspectionDateInput"
+                   type="date"
+                   onchange="saveDate('trailerInspectionDate', this.value)">
+
+            <div id="trailerInspectionStatus" class="status"></div>
+
+            <div id="trailerInspectionUploadBox"><br>
+
+                <input id="trailerInspectionFileInput"
+                       type="file"
+                       accept="image/*"
+                       capture="environment"
+                       onchange="saveDocument(event, 'trailerInspection')">
+
+            </div>
+
+            <div id="trailerInspectionSaved"
+                 class="saved-message"></div>
+
+            <div id="trailerInspectionControls"
+                 style="display:none;">
+
+                <button class="doc-button"
+                        onclick="replaceDocument('trailerInspection')">
+                    Replace Document
+                </button>
+
+                <button class="doc-button delete-button"
+                        onclick="deleteDocument('trailerInspection')">
+                    Delete Document
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="doc-photo">
+
+            <img id="trailerInspectionPreview"
+                 class="preview-image"
+                 style="display:none;"
+                 onclick="toggleFullScreen(this)">
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- PERMITS SCREEN -->
+<div id="permitsScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Permits</div>
+        <div class="topbar-right"></div>
+    </div>
+<!-- PERMIT 1 -->
+    <div class="doc-row">
+        <div class="doc-info">
+            <h3>Permit 1</h3>
+            <label>Permit Name:</label><br>
+            <input id="permit1NameInput" type="text" placeholder="Permit name" onchange="saveText('permit1Name', this.value)">
+            <br><br>
+
+            <label>Expiration Date:</label><br>
+            <input id="permit1DateInput" type="date" onchange="saveDate('permit1Date', this.value)">
+            <div id="permit1Status" class="status"></div>
+
+            <div id="permit1UploadBox"><br>
+                <input id="permit1FileInput" type="file" accept="image/*,.pdf" capture="environment" onchange="saveDocument(event, 'permit1')">
+            </div>
+
+            <div id="permit1Saved" class="saved-message"></div>
+
+            <div id="permit1Controls" style="display:none;">
+                <button class="doc-button" onclick="replaceDocument('permit1')">Replace Document</button>
+                <button class="doc-button delete-button" onclick="deleteDocument('permit1')">Delete Document</button>
+            </div>
+        </div>
+
+        <div class="doc-photo">
+            <img id="permit1Preview" class="preview-image" style="display:none;" onclick="toggleFullScreen(this)">
+        </div>
+    </div>
+<!-- PERMIT 2 -->
+    <div class="doc-row">
+        <div class="doc-info">
+            <h3>Permit 2</h3>
+            <label>Permit Name:</label><br>
+            <input id="permit2NameInput" type="text" placeholder="Permit name" onchange="saveText('permit2Name', this.value)">
+            <br><br>
+
+            <label>Expiration Date:</label><br>
+            <input id="permit2DateInput" type="date" onchange="saveDate('permit2Date', this.value)">
+            <div id="permit2Status" class="status"></div>
+
+            <div id="permit2UploadBox"><br>
+                <input id="permit2FileInput" type="file" accept="image/*,.pdf" capture="environment" onchange="saveDocument(event, 'permit2')">
+            </div>
+
+            <div id="permit2Saved" class="saved-message"></div>
+
+            <div id="permit2Controls" style="display:none;">
+                <button class="doc-button" onclick="replaceDocument('permit2')">Replace Document</button>
+                <button class="doc-button delete-button" onclick="deleteDocument('permit2')">Delete Document</button>
+            </div>
+        </div>
+
+        <div class="doc-photo">
+            <img id="permit2Preview" class="preview-image" style="display:none;" onclick="toggleFullScreen(this)">
+        </div>
+    </div>
+<!-- PERMIT 3 -->
+    <div class="doc-row">
+        <div class="doc-info">
+            <h3>Permit 3</h3>
+            <label>Permit Name:</label><br>
+            <input id="permit3NameInput" type="text" placeholder="Permit name" onchange="saveText('permit3Name', this.value)">
+            <br><br>
+
+            <label>Expiration Date:</label><br>
+            <input id="permit3DateInput" type="date" onchange="saveDate('permit3Date', this.value)">
+            <div id="permit3Status" class="status"></div>
+
+            <div id="permit3UploadBox"><br>
+                <input id="permit3FileInput" type="file" accept="image/*,.pdf" capture="environment" onchange="saveDocument(event, 'permit3')">
+            </div>
+
+            <div id="permit3Saved" class="saved-message"></div>
+
+            <div id="permit3Controls" style="display:none;">
+                <button class="doc-button" onclick="replaceDocument('permit3')">Replace Document</button>
+                <button class="doc-button delete-button" onclick="deleteDocument('permit3')">Delete Document</button>
+            </div>
+        </div>
+
+        <div class="doc-photo">
+            <img id="permit3Preview" class="preview-image" style="display:none;" onclick="toggleFullScreen(this)">
+        </div>
+    </div>
+<!-- PERMIT 4 -->
+    <div class="doc-row">
+        <div class="doc-info">
+            <h3>Permit 4</h3>
+            <label>Permit Name:</label><br>
+            <input id="permit4NameInput" type="text" placeholder="Permit name" onchange="saveText('permit4Name', this.value)">
+            <br><br>
+
+            <label>Expiration Date:</label><br>
+            <input id="permit4DateInput" type="date" onchange="saveDate('permit4Date', this.value)">
+            <div id="permit4Status" class="status"></div>
+
+            <div id="permit4UploadBox"><br>
+                <input id="permit4FileInput" type="file" accept="image/*,.pdf" capture="environment" onchange="saveDocument(event, 'permit4')">
+            </div>
+
+            <div id="permit4Saved" class="saved-message"></div>
+
+            <div id="permit4Controls" style="display:none;">
+                <button class="doc-button" onclick="replaceDocument('permit4')">Replace Document</button>
+                <button class="doc-button delete-button" onclick="deleteDocument('permit4')">Delete Document</button>
+            </div>
+        </div>
+
+        <div class="doc-photo">
+            <img id="permit4Preview" class="preview-image" style="display:none;" onclick="toggleFullScreen(this)">
+        </div>
+    </div>
+<!-- PERMIT 5 -->
+    <div class="doc-row">
+        <div class="doc-info">
+            <h3>Permit 5</h3>
+            <label>Permit Name:</label><br>
+            <input id="permit5NameInput" type="text" placeholder="Permit name" onchange="saveText('permit5Name', this.value)">
+            <br><br>
+
+            <label>Expiration Date:</label><br>
+            <input id="permit5DateInput" type="date" onchange="saveDate('permit5Date', this.value)">
+            <div id="permit5Status" class="status"></div>
+
+            <div id="permit5UploadBox"><br>
+                <input id="permit5FileInput" type="file" accept="image/*,.pdf" capture="environment" onchange="saveDocument(event, 'permit5')">
+            </div>
+
+            <div id="permit5Saved" class="saved-message"></div>
+
+            <div id="permit5Controls" style="display:none;">
+                <button class="doc-button" onclick="replaceDocument('permit5')">Replace Document</button>
+                <button class="doc-button delete-button" onclick="deleteDocument('permit5')">Delete Document</button>
+            </div>
+        </div>
+
+        <div class="doc-photo">
+            <img id="permit5Preview" class="preview-image" style="display:none;" onclick="toggleFullScreen(this)">
+        </div>
+    </div>
+
+</div>
+
+
+
+<!-- INSPECTION SCREEN -->
+<div id="inspectionScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Inspection Mode</div>
+        <div class="topbar-right"></div>
+    </div>
+
+    <div id="inspectionLockBar" class="inspection-lock-bar">
+        LOCKED INSPECTION MODE ACTIVE<br>
+        Officer view only. Driver PIN required to exit.
+        <br>
+        <button class="exit-lock-button" onclick="exitInspectionLockdown()">
+            Exit Inspection Mode
+        </button>
+    </div>
+
+    <div class="inspection-actions">
+        <h3>Officer View</h3>
+        <p class="inspection-note">
+            This screen only shows inspection documents. It does not show PM records, backup tools, or private app setup items.
+        </p>
+
+        <label><strong>Email selected documents to:</strong></label><br>
+        <input id="inspectionEmailInput"
+               type="email"
+               placeholder="your@email.com"
+               onchange="saveText('inspectionEmail', this.value)">
+
+        <br><br>
+
+        <button class="doc-button" onclick="selectAllInspectionDocs()">
+            Select All
+        </button>
+
+        <button class="doc-button" onclick="clearInspectionDocs()">
+            Clear
+        </button>
+
+        <button class="doc-button" onclick="emailSelectedInspectionDocs()">
+            Create Packet / Email Selected
+        </button>
+
+        <p class="inspection-note">
+            Note: the browser cannot automatically attach files to an email. This button creates an Inspection Packet download,
+            then opens an email draft so you can attach the downloaded packet.
+        </p>
+
+        <div id="inspectionEmailStatus" class="status"></div>
+    </div>
+
+    <div id="inspectionList" class="inspection-list"></div>
+
+</div>
+
+
+
+<!-- FULLSCREEN EXIT WARNING OVERLAY -->
+<div id="fullscreenExitOverlay" class="fullscreen-exit-overlay">
+    <div class="overlay-box">
+        <h2>WARNING: Inspection Fullscreen Was Exited</h2>
+        <p>
+            TruckDocs is still in locked Inspection Mode. For true officer handoff protection,
+            use Guided Access on iPad/iPhone or App Pinning on Android.
+        </p>
+        <p>
+            Re-enter fullscreen to continue the officer view, or use the Driver PIN to exit Inspection Mode.
+        </p>
+        <button class="fullscreen-return-button" onclick="returnToInspectionFullscreen()">
+            Re-enter Inspection Fullscreen
+        </button>
+        <button class="fullscreen-pin-button" onclick="exitInspectionLockdown()">
+            Exit With Driver PIN
+        </button>
+    </div>
+</div>
+
+
+
+<!-- RECEIPT VAULT SCREEN -->
+<div id="receiptVaultScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Receipt Vault</div>
+        <div class="topbar-right"></div>
+    </div>
+
+    <div class="receipt-form">
+        <h3>Add Receipt</h3>
+
+        <label>Category:</label><br>
+        <select id="receiptCategoryInput">
+            <option value="Fuel">Fuel</option>
+            <option value="Repairs">Repairs</option>
+            <option value="Food">Food</option>
+            <option value="Scale Tickets">Scale Tickets</option>
+            <option value="Tolls">Tolls</option>
+            <option value="Truck Wash">Truck Wash</option>
+            <option value="Parking">Parking</option>
+            <option value="Lodging">Lodging</option>
+            <option value="Office Supplies">Office Supplies</option>
+            <option value="Other">Other</option>
+        </select>
+
+        <br><br>
+
+        <label>Amount:</label><br>
+        <input id="receiptAmountInput"
+               type="text"
+               inputmode="decimal"
+               placeholder="Example: 123.45">
+
+        <br><br>
+
+        <label>Date:</label><br>
+        <input id="receiptDateInput"
+               type="date">
+
+        <br><br>
+
+        <label>Notes / Description:</label><br>
+        <textarea id="receiptNotesInput"
+                  placeholder="Example: Fuel at Love's, Boise ID"></textarea>
+
+        <br><br>
+
+        <label>Receipt Picture or PDF:</label><br>
+        <input id="receiptFileInput"
+               type="file"
+               accept="image/*,.pdf,application/pdf"
+               capture="environment">
+
+        <br><br>
+
+        <button class="doc-button" onclick="saveReceipt()">
+            Save Receipt
+        </button>
+
+        <button class="doc-button" onclick="clearReceiptForm()">
+            Clear Form
+        </button>
+
+        <div id="receiptSavedStatus" class="saved-message"></div>
+    </div>
+
+    <div class="receipt-totals">
+        <h3>Receipt Totals</h3>
+        <div id="receiptTotalsBox"></div>
+        <br>
+        <button class="doc-button" onclick="exportReceiptReport()">
+            Export Receipt Report
+        </button>
+    </div>
+
+    <div class="receipt-filter-row">
+        <label><strong>Filter by Category:</strong></label><br>
+        <select id="receiptFilterInput" onchange="renderReceiptVault()">
+            <option value="All">All</option>
+            <option value="Fuel">Fuel</option>
+            <option value="Repairs">Repairs</option>
+            <option value="Food">Food</option>
+            <option value="Scale Tickets">Scale Tickets</option>
+            <option value="Tolls">Tolls</option>
+            <option value="Truck Wash">Truck Wash</option>
+            <option value="Parking">Parking</option>
+            <option value="Lodging">Lodging</option>
+            <option value="Office Supplies">Office Supplies</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+
+    <div id="receiptList"></div>
+
+    <br><br>
+
+    <button class="doc-button delete-button" onclick="deleteAllReceipts()">
+        Delete All Receipts
+    </button>
+
+</div>
+
+<div id="maintenanceScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">Preventative Maintenance</div>
+        <div class="topbar-right"></div>
+    </div>
+
+    <br><br>
+
+    <div class="pm-grid">
+
+        <div class="pm-column">
+            <h3 class="pm-column-title">Standard PM Items</h3>
+
+            <div class="doc-row">
+                <div class="doc-info">
+
+                    <h3>Oil Lab Test</h3>
+
+                    <label>Last Done At Miles:</label><br>
+                    <input id="oilLabMiles"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <label>Due Every Miles:</label><br>
+                    <input id="oilLabInterval"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <button class="doc-button"
+                            onclick="saveMaintenanceItem('oilLab')">
+                        Save
+                    </button>
+
+                    <br><br>
+
+                    <div id="oilLabStatus" class="status"></div>
+
+                </div>
+            </div>
+
+            <div class="doc-row">
+                <div class="doc-info">
+
+                    <h3>Oil Filter</h3>
+
+                    <label>Last Done At Miles:</label><br>
+                    <input id="oilFilterMiles"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <label>Due Every Miles:</label><br>
+                    <input id="oilFilterInterval"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <button class="doc-button"
+                            onclick="saveMaintenanceItem('oilFilter')">
+                        Save
+                    </button>
+
+                    <br><br>
+
+                    <div id="oilFilterStatus" class="status"></div>
+
+                </div>
+            </div>
+
+            <div class="doc-row">
+                <div class="doc-info">
+
+                    <h3>Oil Change</h3>
+
+                    <label>Last Done At Miles:</label><br>
+                    <input id="oilChangeMiles"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <label>Due Every Miles:</label><br>
+                    <input id="oilChangeInterval"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <button class="doc-button"
+                            onclick="saveMaintenanceItem('oilChange')">
+                        Save
+                    </button>
+
+                    <br><br>
+
+                    <div id="oilChangeStatus" class="status"></div>
+
+                </div>
+            </div>
+
+            <div class="doc-row">
+                <div class="doc-info">
+
+                    <h3>Fuel Filter</h3>
+
+                    <label>Last Done At Miles:</label><br>
+                    <input id="fuelFilterMiles"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <label>Due Every Miles:</label><br>
+                    <input id="fuelFilterInterval"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <button class="doc-button"
+                            onclick="saveMaintenanceItem('fuelFilter')">
+                        Save
+                    </button>
+
+                    <br><br>
+
+                    <div id="fuelFilterStatus" class="status"></div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="pm-column">
+            <h3 class="pm-column-title">Custom PM Items</h3>
+
+            <div class="doc-row">
+                <div class="doc-info">
+
+                    <label>PM Item Name:</label><br>
+                <input id="customPM1Name"
+                       class="pm-name-input"
+                       type="text"
+                       placeholder="Custom PM 1"
+                       onchange="saveMaintenanceName('customPM1', this.value)">
+
+                <br><br>
+
+                    <label>Last Done At Miles:</label><br>
+                    <input id="customPM1Miles"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <label>Due Every Miles:</label><br>
+                    <input id="customPM1Interval"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <button class="doc-button"
+                            onclick="saveMaintenanceItem('customPM1')">
+                        Save
+                    </button>
+
+                    <br><br>
+
+                    <div id="customPM1Status" class="status"></div>
+
+                </div>
+            </div>
+
+            <div class="doc-row">
+                <div class="doc-info">
+
+                    <label>PM Item Name:</label><br>
+                <input id="customPM2Name"
+                       class="pm-name-input"
+                       type="text"
+                       placeholder="Custom PM 2"
+                       onchange="saveMaintenanceName('customPM2', this.value)">
+
+                <br><br>
+
+                    <label>Last Done At Miles:</label><br>
+                    <input id="customPM2Miles"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <label>Due Every Miles:</label><br>
+                    <input id="customPM2Interval"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <button class="doc-button"
+                            onclick="saveMaintenanceItem('customPM2')">
+                        Save
+                    </button>
+
+                    <br><br>
+
+                    <div id="customPM2Status" class="status"></div>
+
+                </div>
+            </div>
+
+            <div class="doc-row">
+                <div class="doc-info">
+
+                    <label>PM Item Name:</label><br>
+                <input id="customPM3Name"
+                       class="pm-name-input"
+                       type="text"
+                       placeholder="Custom PM 3"
+                       onchange="saveMaintenanceName('customPM3', this.value)">
+
+                <br><br>
+
+                    <label>Last Done At Miles:</label><br>
+                    <input id="customPM3Miles"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <label>Due Every Miles:</label><br>
+                    <input id="customPM3Interval"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <button class="doc-button"
+                            onclick="saveMaintenanceItem('customPM3')">
+                        Save
+                    </button>
+
+                    <br><br>
+
+                    <div id="customPM3Status" class="status"></div>
+
+                </div>
+            </div>
+
+            <div class="doc-row">
+                <div class="doc-info">
+
+                    <label>PM Item Name:</label><br>
+                <input id="customPM4Name"
+                       class="pm-name-input"
+                       type="text"
+                       placeholder="Custom PM 4"
+                       onchange="saveMaintenanceName('customPM4', this.value)">
+
+                <br><br>
+
+                    <label>Last Done At Miles:</label><br>
+                    <input id="customPM4Miles"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <label>Due Every Miles:</label><br>
+                    <input id="customPM4Interval"
+                           type="text"
+                           inputmode="numeric"
+                           placeholder="Miles">
+
+                    <br><br>
+
+                    <button class="doc-button"
+                            onclick="saveMaintenanceItem('customPM4')">
+                        Save
+                    </button>
+
+                    <br><br>
+
+                    <div id="customPM4Status" class="status"></div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- SETTINGS SCREEN -->
+<div id="settingsScreen"
+     style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">TruckDocs App Settings</div>
+        <div class="topbar-right"></div>
+    </div>
+
+    <div class="settings-grid">
+
+        <div class="settings-card">
+            <h3>Driver Information</h3>
+
+            <label>Driver Name:</label><br>
+            <input id="driverNameInput" type="text">
+
+            <br><br>
+
+            <label>Company Name:</label><br>
+            <input id="companyNameInput" type="text">
+
+            <br><br>
+
+            <label>DOT Number:</label><br>
+            <input id="driverDOTInput"
+                   type="text"
+                   placeholder="Enter DOT Number">
+
+            <br><br>
+
+            <label>Motor Carrier Number:</label><br>
+            <input id="motorCarrierInput"
+                   type="text"
+                   placeholder="Enter MC Number">
+
+            <br><br>
+
+            <label>Phone Number:</label><br>
+            <input id="driverPhoneInput" type="text">
+
+            <br><br>
+
+            <label>Email:</label><br>
+            <input id="driverEmailInput" type="email">
+
+            <br><br>
+
+            <button class="doc-button" onclick="saveSettings()">
+                Save Settings
+            </button>
+
+            <div id="settingsSaved" class="saved-message"></div>
+        </div>
+
+        <div class="settings-card">
+            <h3>Inspection Security</h3>
+
+            <label>Driver PIN:</label><br>
+            <input id="driverPINInput"
+                   type="password"
+                   maxlength="8">
+
+            <br><br>
+
+            <label>Recovery Question:</label><br>
+            <input id="recoveryQuestionInput"
+                   type="text"
+                   placeholder="Example: Favorite pet?">
+
+            <br><br>
+
+            <label>Recovery Answer:</label><br>
+            <input id="recoveryAnswerInput"
+                   type="text">
+
+            <br><br>
+
+            <button class="doc-button" onclick="saveSettings()">
+                Save Security Settings
+            </button>
+
+            <p class="inspection-note">
+                The Driver PIN is used to exit locked Inspection Mode. If forgotten, use the recovery question and answer.
+            </p>
+        </div>
+
+        <div class="settings-card">
+            <h3>Home Screen Appearance</h3>
+
+            <label>Home Menu Button Color:</label><br>
+            <select id="menuColorInput" onchange="saveMenuColor(this.value)">
+                <option value="blue">Blue</option>
+                <option value="black">Black</option>
+                <option value="brown">Brown</option>
+                <option value="red">Red</option>
+                <option value="green">Green</option>
+                <option value="gold">Yellow / Gold</option>
+                <option value="orange">Orange</option>
+                <option value="purple">Purple</option>
+                <option value="gray">Gray</option>
+            </select>
+
+            <div class="color-preview-line">
+                Home Menu Button Preview
+            </div>
+
+            <br>
+
+            <h3>Home Screen Background</h3>
+
+            <p class="inspection-note">
+                Test feature: choose a truck photo to softly display behind the Home menu.
+                Later this can become a paid customization feature.
+            </p>
+
+            <input id="homeBackgroundFileInput"
+                   type="file"
+                   accept="image/*"
+                   capture="environment"
+                   onchange="saveHomeBackground(event)">
+
+            <br><br>
+
+            <button class="doc-button delete-button"
+                    onclick="removeHomeBackground()">
+                Remove Home Background
+            </button>
+
+            <br>
+
+            <img id="homeBackgroundPreview"
+                 class="home-bg-preview">
+
+            <div id="homeBackgroundSaved"
+                 class="saved-message"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const driverDateKeys = [
+    'licenseFrontDate',
+    'medicalCardDate'
+];
+
+const truckDateKeys = [
+    'truckRegistrationDate',
+    'truckInsuranceDate',
+    'truckAnnualInspectionDate',
+    'truckCabCardDate'
+];
+
+const trailerDateKeys = [
+    'trailerRegistrationDate',
+    'trailerInsuranceDate',
+    'trailerInspectionDate'
+];
+
+const permitsDateKeys = [
+    'permit1Date',
+    'permit2Date',
+    'permit3Date',
+    'permit4Date',
+    'permit5Date'
+];
+
+
+
+
+/* ===================== HIDE ALL SCREENS ===================== */
+function hideAllScreens() {
+    const screens = [
+        'mainMenu',
+        'driverScreen',
+        'truckScreen',
+        'trailerScreen',
+        'permitsScreen',
+        'inspectionPrepScreen',
+        'inspectionScreen',
+        'backupScreen',
+        'bolScreen',
+        'receiptVaultScreen',
+        'maintenanceScreen',
+        'settingsScreen'
+    ];
+
+    screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = 'none';
+        }
+    });
+
+    const menu = document.getElementById('mainMenu');
+    if (menu) {
+        menu.style.display = 'none';
+        menu.classList.remove('home-menu-over-bg');
+    }
+
+    setHomeBackgroundVisible(false);
+}
+
+
+/* ===================== GO HOME ===================== */
+function goHome() {
+    if (isInspectionLocked()) {
+        exitInspectionLockdown();
+        return;
+    }
+
+    hideAllScreens();
+
+    const menu = document.getElementById('mainMenu');
+    if (menu) {
+        menu.style.display = 'grid';
+    }
+
+    applyMenuColor();
+    applyHomeBackground();
+    setHomeBackgroundVisible(true);
+
+    window.scrollTo(0, 0);
+    updateAllMenuStatuses();
+}
+
+
+
+/* ==================== SHOW DRIVER DOCUMENTS ==================== */
+function showDriver() {
+    hideAllScreens();
+    window.scrollTo(0, 0);
+    document.getElementById('driverScreen').style.display = 'block';
+
+    loadSavedDocument('licenseFront');
+    loadSavedDocument('medicalCard');
+    driverDateKeys.forEach(loadDate);
+}
+
+/* ==================== SHOW TRUCK ==================== */
+function showTruck() {
+    hideAllScreens();
+
+    window.scrollTo(0, 0);
+
+    document.getElementById('truckScreen').style.display = 'block';
+
+	loadSavedDocument('truckRegistration');
+	loadSavedDocument('truckInsurance');
+	loadSavedDocument('truckAnnualInspection');
+	loadSavedDocument('truckCabCard');                      
+
+truckDateKeys.forEach(loadDate);
+
+}
+
+
+
+/* ==================== SHOW TRAILER ==================== */
+function showTrailer() {
+
+    hideAllScreens();
+
+    window.scrollTo(0, 0);
+
+    document.getElementById('trailerScreen').style.display = 'block';
+
+    loadSavedDocument('trailerRegistration');
+    loadSavedDocument('trailerInsurance');
+    loadSavedDocument('trailerInspection');
+
+    trailerDateKeys.forEach(loadDate);
+
+}
+
+
+
+
+/* ==================== SHOW PERMITS ==================== */
+function showPermits() {
+    hideAllScreens();
+    window.scrollTo(0, 0);
+    document.getElementById('permitsScreen').style.display = 'block';
+
+    loadSavedDocument('permit1');
+    loadDate('permit1Date');
+    loadText('permit1Name');
+
+    loadSavedDocument('permit2');
+    loadDate('permit2Date');
+    loadText('permit2Name');
+
+    loadSavedDocument('permit3');
+    loadDate('permit3Date');
+    loadText('permit3Name');
+
+    loadSavedDocument('permit4');
+    loadDate('permit4Date');
+    loadText('permit4Name');
+
+    loadSavedDocument('permit5');
+    loadDate('permit5Date');
+    loadText('permit5Name');
+}
+
+
+
+/* ==================== SHOW BOL ==================== */
+function showBOL() {
+    hideAllScreens();
+    window.scrollTo(0, 0);
+    document.getElementById('bolScreen').style.display = 'block';
+    renderBOLPackets();
+}
+
+
+
+
+
+/* ==================== SHOW RECEIPT VAULT ==================== */
+function showReceiptVault() {
+    hideAllScreens();
+    window.scrollTo(0, 0);
+    document.getElementById('receiptVaultScreen').style.display = 'block';
+
+    const dateInput = document.getElementById('receiptDateInput');
+    if (dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().slice(0, 10);
+    }
+
+    renderReceiptVault();
+}
+
+
+/* ==================== SHOW BACKUP ==================== */
+function showBackup() {
+    hideAllScreens();
+    window.scrollTo(0, 0);
+    document.getElementById('backupScreen').style.display = 'block';
+}
+
+
+
+
+/* ==================== SHOW INSPECTION PREP ==================== */
+function showInspectionPrep() {
+    hideAllScreens();
+    window.scrollTo(0, 0);
+    document.getElementById('inspectionPrepScreen').style.display = 'block';
+
+    inspectionTapArmed = false;
+
+    if (inspectionTapTimer) {
+        clearTimeout(inspectionTapTimer);
+        inspectionTapTimer = null;
+    }
+
+    const btn = document.getElementById('inspectionStartBtn');
+    if (btn) {
+        btn.innerHTML = 'Double Tap to Start Inspection Mode';
+    }
+}
+
+
+
+/* ==================== SHOW SETTINGS ==================== */
+function showSettings() {
+    hideAllScreens();
+    window.scrollTo(0, 0);
+    document.getElementById('settingsScreen').style.display = 'block';
+    loadSettings();
+}
+
+
+
+/* ==================== SAVE SETTINGS ==================== */
+function saveSettings() {
+    localStorage.setItem('driverName', document.getElementById('driverNameInput').value.trim());
+    localStorage.setItem('companyName', document.getElementById('companyNameInput').value.trim());
+    localStorage.setItem('driverPhone', document.getElementById('driverPhoneInput').value.trim());
+    localStorage.setItem('driverEmail', document.getElementById('driverEmailInput').value.trim());
+    localStorage.setItem('driverDOT', document.getElementById('driverDOTInput').value.trim());
+    localStorage.setItem('motorCarrier', document.getElementById('motorCarrierInput').value.trim());
+    localStorage.setItem('driverPIN', document.getElementById('driverPINInput').value.trim());
+    localStorage.setItem('recoveryQuestion', document.getElementById('recoveryQuestionInput').value.trim());
+    localStorage.setItem('recoveryAnswer', document.getElementById('recoveryAnswerInput').value.trim());
+
+    const menuColorInput = document.getElementById('menuColorInput');
+    if (menuColorInput) {
+        localStorage.setItem('homeMenuColor', menuColorInput.value);
+        applyMenuColor();
+    }
+
+    const saved = document.getElementById('settingsSaved');
+    if (saved) {
+        saved.innerText = 'Settings saved';
+    }
+}
+
+
+
+/* ==================== LOAD SETTINGS ==================== */
+function loadSettings() {
+    const fields = [
+        ['driverNameInput', 'driverName'],
+        ['companyNameInput', 'companyName'],
+        ['driverPhoneInput', 'driverPhone'],
+        ['driverEmailInput', 'driverEmail'],
+        ['driverDOTInput', 'driverDOT'],
+        ['motorCarrierInput', 'motorCarrier'],
+        ['driverPINInput', 'driverPIN'],
+        ['recoveryQuestionInput', 'recoveryQuestion'],
+        ['recoveryAnswerInput', 'recoveryAnswer'],
+        ['menuColorInput', 'homeMenuColor']
+    ];
+
+    fields.forEach(([inputId, storageKey]) => {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.value = localStorage.getItem(storageKey) || '';
+        }
+    });
+
+    const saved = document.getElementById('settingsSaved');
+    if (saved) {
+        saved.innerText = '';
+    }
+
+    loadHomeBackgroundSettings();
+    applyMenuColor();
+}
+
+
+
+/* ==================== HOME MENU COLOR SETTINGS ==================== */
+function getMenuColorMap(colorName) {
+    const colors = {
+        blue:   { bg: '#3498db', soft: 'rgba(52, 152, 219, 0.94)', text: 'white' },
+        black:  { bg: '#1f2933', soft: 'rgba(31, 41, 51, 0.94)', text: 'white' },
+        brown:  { bg: '#7b4f2c', soft: 'rgba(123, 79, 44, 0.94)', text: 'white' },
+        red:    { bg: '#c0392b', soft: 'rgba(192, 57, 43, 0.94)', text: 'white' },
+        green:  { bg: '#2e8b57', soft: 'rgba(46, 139, 87, 0.94)', text: 'white' },
+        gold:   { bg: '#d4a017', soft: 'rgba(212, 160, 23, 0.94)', text: '#1f2933' },
+        orange: { bg: '#e67e22', soft: 'rgba(230, 126, 34, 0.94)', text: 'white' },
+        purple: { bg: '#7d3c98', soft: 'rgba(125, 60, 152, 0.94)', text: 'white' },
+        gray:   { bg: '#607d8b', soft: 'rgba(96, 125, 139, 0.94)', text: 'white' }
+    };
+
+    return colors[colorName] || colors.blue;
+}
+
+function saveMenuColor(colorName) {
+    localStorage.setItem('homeMenuColor', colorName || 'blue');
+    applyMenuColor();
+
+    const saved = document.getElementById('settingsSaved');
+    if (saved) {
+        saved.innerText = 'Menu color saved';
+    }
+}
+
+function applyMenuColor() {
+    const colorName = localStorage.getItem('homeMenuColor') || 'blue';
+    const color = getMenuColorMap(colorName);
+
+    document.documentElement.style.setProperty('--home-menu-button-bg', color.bg);
+    document.documentElement.style.setProperty('--home-menu-button-bg-soft', color.soft);
+    document.documentElement.style.setProperty('--home-menu-button-text', color.text);
+    document.documentElement.style.setProperty('--menuButtonColor', color.soft);
+
+    const input = document.getElementById('menuColorInput');
+    if (input) {
+        input.value = colorName;
+    }
+}
+
+
+/* ==================== HOME BACKGROUND SETTINGS ==================== */
+function saveHomeBackground(event) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    if (!file.type || !file.type.startsWith('image/')) {
+        alert('Choose an image file for the Home background.');
+        return;
+    }
+
+    compressHomeBackgroundImage(file, function(imageData) {
+        try {
+            localStorage.setItem('homeBackgroundImage', imageData);
+        } catch (error) {
+            alert('This image is too large to save as the Home background. Try a smaller photo.');
+            return;
+        }
+
+        loadHomeBackgroundSettings();
+        applyHomeBackground();
+        setHomeBackgroundVisible(document.getElementById('mainMenu').style.display !== 'none');
+    });
+
+    event.target.value = '';
+}
+
+function compressHomeBackgroundImage(file, callback) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const img = new Image();
+
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const maxWidth = 1400;
+            const scale = Math.min(1, maxWidth / img.width);
+
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const compressedData = canvas.toDataURL('image/jpeg', 0.55);
+            callback(compressedData);
+        };
+
+        img.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function loadHomeBackgroundSettings() {
+    const imageData = localStorage.getItem('homeBackgroundImage') || '';
+    const preview = document.getElementById('homeBackgroundPreview');
+    const saved = document.getElementById('homeBackgroundSaved');
+
+    if (preview) {
+        if (imageData) {
+            preview.src = imageData;
+            preview.style.display = 'inline-block';
+        } else {
+            preview.src = '';
+            preview.style.display = 'none';
+        }
+    }
+
+    if (saved) {
+        saved.innerText = imageData ? 'Home background saved' : '';
+    }
+}
+
+function applyHomeBackground() {
+    const imageData = localStorage.getItem('homeBackgroundImage') || '';
+    const layer = document.getElementById('homeBackgroundLayer');
+
+    if (!layer) return;
+
+    if (imageData) {
+        layer.style.backgroundImage = 'url(' + imageData + ')';
+    } else {
+        layer.style.backgroundImage = '';
+    }
+}
+
+function setHomeBackgroundVisible(visible) {
+    const imageData = localStorage.getItem('homeBackgroundImage') || '';
+    const layer = document.getElementById('homeBackgroundLayer');
+    const menu = document.getElementById('mainMenu');
+
+    if (!layer) return;
+
+    if (visible && imageData) {
+        layer.style.display = 'block';
+        if (menu) menu.classList.add('home-menu-over-bg');
+    } else {
+        layer.style.display = 'none';
+        if (menu) menu.classList.remove('home-menu-over-bg');
+    }
+}
+
+function removeHomeBackground() {
+    localStorage.removeItem('homeBackgroundImage');
+    loadHomeBackgroundSettings();
+    applyHomeBackground();
+    setHomeBackgroundVisible(false);
+
+    const saved = document.getElementById('homeBackgroundSaved');
+    if (saved) {
+        saved.innerText = 'Home background removed';
+    }
+}
+
+
+/* ==================== INSPECTION LOCKDOWN ==================== */
+let inspectionLockActive = false;
+let inspectionTapTimer = null;
+let inspectionTapArmed = false;
+
+function isInspectionLocked() {
+    return inspectionLockActive || localStorage.getItem('inspectionLockActive') === 'true';
+}
+
+function setInspectionLocked(value) {
+    inspectionLockActive = value;
+
+    if (value) {
+        localStorage.setItem('inspectionLockActive', 'true');
+    } else {
+        localStorage.removeItem('inspectionLockActive');
+    }
+}
+
+function startInspectionLockdown() {
+    const pin = localStorage.getItem('driverPIN') || '';
+
+    if (!pin) {
+        alert('Set a Driver PIN first in TruckDocs App Settings before using locked Inspection Mode.');
+        showSettings();
+        return;
+    }
+
+    const confirmBox = document.getElementById('deviceLockConfirm');
+    if (confirmBox && !confirmBox.checked) {
+        alert('Before starting Inspection Mode, check the box confirming Guided Access / App Pinning or acknowledging browser limitations.');
+        return;
+    }
+
+    if (!inspectionTapArmed) {
+        inspectionTapArmed = true;
+
+        const btn = document.getElementById('inspectionStartBtn');
+        if (btn) {
+            btn.innerHTML = 'Tap Again Now to Start';
+        }
+
+        if (inspectionTapTimer) {
+            clearTimeout(inspectionTapTimer);
+        }
+
+        inspectionTapTimer = setTimeout(function() {
+            inspectionTapArmed = false;
+            const btn = document.getElementById('inspectionStartBtn');
+            if (btn) {
+                btn.innerHTML = 'Double Tap to Start Inspection Mode';
+            }
+        }, 3000);
+
+        return;
+    }
+
+    inspectionTapArmed = false;
+
+    if (inspectionTapTimer) {
+        clearTimeout(inspectionTapTimer);
+        inspectionTapTimer = null;
+    }
+
+    showInspectionLocked(true);
+}
+
+function showInspectionLocked(requestFullScreen) {
+    setInspectionLocked(true);
+
+    hideAllScreens();
+    window.scrollTo(0, 0);
+
+    const screen = document.getElementById('inspectionScreen');
+    if (screen) {
+        screen.style.display = 'block';
+    }
+
+    hideFullscreenExitWarning();
+    loadInspectionData();
+
+    if (requestFullScreen !== false) {
+        requestInspectionFullscreen();
+    }
+}
+
+function requestInspectionFullscreen() {
+    try {
+        const page = document.documentElement;
+        if (page.requestFullscreen) {
+            page.requestFullscreen();
+        }
+    } catch (error) {}
+}
+
+function returnToInspectionFullscreen() {
+    hideFullscreenExitWarning();
+    showInspectionLocked(true);
+}
+
+function showFullscreenExitWarning() {
+    const overlay = document.getElementById('fullscreenExitOverlay');
+    if (overlay && isInspectionLocked()) {
+        overlay.style.display = 'block';
+    }
+}
+
+function hideFullscreenExitWarning() {
+    const overlay = document.getElementById('fullscreenExitOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+}
+
+function exitInspectionLockdown() {
+    const savedPin = localStorage.getItem('driverPIN') || '';
+
+    if (!savedPin) {
+        setInspectionLocked(false);
+        hideFullscreenExitWarning();
+        goHome();
+        return;
+    }
+
+    const enteredPin = prompt('Enter Driver PIN to exit Inspection Mode:');
+
+    if (enteredPin === savedPin) {
+        setInspectionLocked(false);
+        hideFullscreenExitWarning();
+
+        try {
+            if (document.fullscreenElement && document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        } catch (error) {}
+
+        goHome();
+        return;
+    }
+
+    const recover = confirm('Incorrect PIN. Do you want to use PIN recovery?');
+
+    if (recover) {
+        recoverInspectionPIN();
+    } else {
+        alert('Inspection Mode remains locked.');
+        showInspectionLocked(false);
+    }
+}
+
+function recoverInspectionPIN() {
+    const question = localStorage.getItem('recoveryQuestion') || '';
+    const answer = localStorage.getItem('recoveryAnswer') || '';
+
+    if (!question || !answer) {
+        alert('No recovery question is set. Inspection Mode remains locked.');
+        showInspectionLocked(false);
+        return;
+    }
+
+    const enteredAnswer = prompt('Recovery Question:\n\n' + question);
+
+    if (enteredAnswer && enteredAnswer.trim().toLowerCase() === answer.trim().toLowerCase()) {
+        const savedPin = localStorage.getItem('driverPIN') || '';
+        alert('Recovery accepted. Your Driver PIN is: ' + savedPin);
+        return;
+    }
+
+    alert('Recovery answer did not match. Inspection Mode remains locked.');
+    showInspectionLocked(false);
+}
+
+function showInspection() {
+    showInspectionPrep();
+}
+
+
+
+/* ==================== SHOW MAINTENANCE ==================== */
+function showMaintenance() {
+
+    hideAllScreens();
+
+    window.scrollTo(0, 0);
+
+    document.getElementById('maintenanceScreen').style.display = 'block';
+
+    getMaintenanceItems().forEach(loadMaintenanceItem);
+}
+
+
+
+/* ===================== SAVE DOCUMENT ===================== */
+
+function saveDocument(event, documentName) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    compressImage(file, function(imageData) {
+
+        try {
+            localStorage.setItem(documentName, imageData);
+        } catch (error) {
+            alert('This image is still too large to save. Try a smaller photo.');
+            return;
+        }
+
+        showPreview(documentName, imageData);
+
+        const savedMsg = document.getElementById(documentName + 'Saved');
+        const controls = document.getElementById(documentName + 'Controls');
+        const uploadBox = document.getElementById(documentName + 'UploadBox');
+
+        if (savedMsg) savedMsg.innerText = 'Document saved';
+        if (controls) controls.style.display = 'block';
+        if (uploadBox) uploadBox.style.display = 'none';
+
+    });
+}
+
+
+
+
+/* ===================== MAINTENANCE: ITEM LIST ===================== */
+function getMaintenanceItems() {
+    return [
+        'oilLab',
+        'oilFilter',
+        'oilChange',
+        'fuelFilter',
+        'customPM1',
+        'customPM2',
+        'customPM3',
+        'customPM4'
+    ];
+}
+
+
+
+/* ===================== MAINTENANCE: SAVE CUSTOM NAME ===================== */
+function saveMaintenanceName(item, value) {
+    const data = JSON.parse(localStorage.getItem('maintenanceData') || '{}');
+
+    if (!data[item]) {
+        data[item] = {};
+    }
+
+    data[item].name = value.trim();
+
+    localStorage.setItem('maintenanceData', JSON.stringify(data));
+
+    updateMaintenanceMenuStatus();
+}
+
+
+
+/* ===================== MAINTENANCE: SAVE ITEM ===================== */
+function saveMaintenanceItem(item) {
+
+const miles = Number(String(document.getElementById(item + 'Miles').value).replace(/\D/g, ''));
+const interval = Number(String(document.getElementById(item + 'Interval').value).replace(/\D/g, ''));
+
+
+    const currentOdometer = Number(
+        String(localStorage.getItem('truckOdometer') || '0').replace(/\D/g, '')
+    );
+
+    if (!miles || !interval) {
+        alert('Enter both Last Done miles and Due Every miles.');
+        return;
+    }
+
+    const data = JSON.parse(localStorage.getItem('maintenanceData') || '{}');
+
+    if (!data[item]) {
+        data[item] = {};
+    }
+
+  data[item].miles = miles;
+data[item].interval = interval;
+
+document.getElementById(item + 'Miles').value =
+    miles.toLocaleString();
+
+document.getElementById(item + 'Interval').value =
+    interval.toLocaleString();
+
+localStorage.setItem('maintenanceData', JSON.stringify(data));
+
+    showMaintenanceStatus(item);
+    updateMaintenanceMenuStatus();
+
+}
+
+
+
+
+/* ===================== MAINTENANCE: SHOW STATUS ===================== */
+function showMaintenanceStatus(item) {
+
+    const data = JSON.parse(localStorage.getItem('maintenanceData') || '{}');
+
+    if (!data[item]) return;
+
+    const miles = Number(data[item].miles);
+    const interval = Number(data[item].interval);
+
+    const currentOdometer = Number(
+        String(localStorage.getItem('truckOdometer') || '0').replace(/\D/g, '')
+    );
+
+    const status = document.getElementById(item + 'Status');
+
+    if (!status || !miles || !interval) return;
+
+    const milesSince = currentOdometer - miles;
+    const milesUntilDue = interval - milesSince;
+
+    if (milesUntilDue <= 0) {
+    status.style.color = 'red';
+
+status.innerText =
+    'OVERDUE by ' +
+    Math.abs(milesUntilDue).toLocaleString() +
+    ' miles. Miles since last PM: ' +
+    milesSince.toLocaleString();
+    } else
+
+ {
+status.style.color = 'green';
+
+status.innerText =
+    'Miles since last PM: ' +
+    milesSince.toLocaleString() +
+    ' - Due in ' +
+    milesUntilDue.toLocaleString() +
+    ' miles';    }
+}
+
+
+
+/* ===================== MAINTENANCE: LOAD ITEM ===================== */
+function loadMaintenanceItem(item) {
+
+    const data = JSON.parse(localStorage.getItem('maintenanceData') || '{}');
+
+    if (!data[item]) return;
+
+    const nameBox = document.getElementById(item + 'Name');
+    const milesBox = document.getElementById(item + 'Miles');
+    const intervalBox = document.getElementById(item + 'Interval');
+
+    if (nameBox && data[item].name) {
+        nameBox.value = data[item].name;
+    }
+
+    if (milesBox && data[item].miles) {
+        milesBox.value = Number(data[item].miles).toLocaleString();
+    }
+
+    if (intervalBox && data[item].interval) {
+        intervalBox.value = Number(data[item].interval).toLocaleString();
+    }
+
+    showMaintenanceStatus(item);
+}
+
+
+
+/* ===================== MAINTENANCE: SAVE PICTURES ===================== */
+function saveMaintenancePics(event, item) {
+
+    const files = Array.from(event.target.files);
+
+    if (!files.length) return;
+
+    const data = JSON.parse(localStorage.getItem('maintenanceData') || '{}');
+
+    if (!data[item]) {
+        data[item] = {};
+    }
+
+    if (!data[item].pics) {
+        data[item].pics = [];
+    }
+
+    let loaded = 0;
+
+    files.forEach(file => {
+
+        compressImage(file, function(imageData) {
+
+            data[item].pics.push(imageData);
+
+            loaded++;
+
+            if (loaded === files.length) {
+
+                localStorage.setItem('maintenanceData', JSON.stringify(data));
+
+                renderMaintenancePics(item);
+            }
+        });
+    });
+
+    event.target.value = '';
+}
+
+
+
+/* ===================== MAINTENANCE: RENDER PICTURES ===================== */
+function renderMaintenancePics(item) {
+
+    const container = document.getElementById(item + 'Pics');
+
+    if (!container) return;
+
+    const data = JSON.parse(localStorage.getItem('maintenanceData') || '{}');
+
+    container.innerHTML = '';
+
+    if (!data[item] || !data[item].pics) return;
+
+    data[item].pics.forEach((pic, index) => {
+
+        const div = document.createElement('div');
+
+        div.style.marginTop = '15px';
+
+        div.innerHTML = `
+            <img src="${pic}"
+                 class="preview-image"
+                 style="display:block; max-width:300px; margin-bottom:10px;"
+                 onclick="toggleFullScreen(this)">
+
+            <button class="doc-button delete-button"
+                    onclick="deleteMaintenancePic('${item}', ${index})">
+                Delete Picture
+            </button>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+
+
+/* ===================== MAINTENANCE: DELETE PICTURE ===================== */
+function deleteMaintenancePic(item, index) {
+
+    const data = JSON.parse(localStorage.getItem('maintenanceData') || '{}');
+
+    if (!data[item] || !data[item].pics) return;
+
+    data[item].pics.splice(index, 1);
+
+    localStorage.setItem('maintenanceData', JSON.stringify(data));
+
+    renderMaintenancePics(item);
+}
+
+
+
+/* ===================== SAVE DOCUMENT ===================== */
+function loadSavedDocument(documentName) {
+    const savedImage = localStorage.getItem(documentName);
+
+    if (!savedImage) return;
+
+    showPreview(documentName, savedImage);
+
+    const controls = document.getElementById(documentName + 'Controls');
+    const uploadBox = document.getElementById(documentName + 'UploadBox');
+    const savedMsg = document.getElementById(documentName + 'Saved');
+
+    if (controls) controls.style.display = 'block';
+    if (uploadBox) uploadBox.style.display = 'none';
+    if (savedMsg) savedMsg.innerText = 'Document saved';
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function showPreview(documentName, imageData) {
+    const preview = document.getElementById(documentName + 'Preview');
+
+    if (!preview) return;
+
+    preview.src = imageData;
+    preview.style.display = 'inline-block';
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function replaceDocument(documentName) {
+    document.getElementById(documentName + 'FileInput').click();
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function deleteDocument(documentName) {
+    localStorage.removeItem(documentName);
+
+    const preview = document.getElementById(documentName + 'Preview');
+
+    if (preview) {
+        preview.src = '';
+        preview.style.display = 'none';
+    }
+
+    document.getElementById(documentName + 'Saved').innerText = '';
+    document.getElementById(documentName + 'Controls').style.display = 'none';
+    document.getElementById(documentName + 'UploadBox').style.display = 'block';
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function saveText(key, value) {
+    localStorage.setItem(key, value);
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function loadText(key) {
+    const savedText = localStorage.getItem(key);
+    const input = document.getElementById(key + 'Input');
+
+    if (savedText && input) {
+        input.value = savedText;
+    }
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function saveDate(key, value) {
+    localStorage.setItem(key, value);
+    checkDateStatus(key, value);
+    updateAllMenuStatuses();
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function loadDate(key) {
+    const savedDate = localStorage.getItem(key);
+    const input = document.getElementById(key + 'Input');
+
+    if (savedDate && input) {
+        input.value = savedDate;
+        checkDateStatus(key, savedDate);
+    }
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function checkDateStatus(key, dateString) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    const expDate = new Date(dateString);
+    expDate.setHours(0,0,0,0);
+
+    const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+    const statusDiv = document.getElementById(key.replace('Date', 'Status'));
+
+    if (!statusDiv) return;
+
+    if (diffDays < 0) {
+        statusDiv.innerText = 'EXPIRED';
+        statusDiv.style.color = 'red';
+    }
+    else if (diffDays <= 30) {
+        statusDiv.innerText = 'WARNING: Expires in ' + diffDays + ' day(s)';
+        statusDiv.style.color = 'orange';
+    }
+    else {
+        statusDiv.innerText = 'OK - expires in ' + diffDays + ' day(s)';
+        statusDiv.style.color = 'green';
+    }
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function toggleFullScreen(img) {
+    img.classList.toggle('fullscreen-image');
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function saveOdometer(value) {
+    const numbersOnly = value.replace(/\D/g, '');
+
+    localStorage.setItem('truckOdometer', numbersOnly);
+
+    document.getElementById('odometerInput').value =
+        numbersOnly ? Number(numbersOnly).toLocaleString() : '';
+
+    updateAllMenuStatuses();
+}
+
+/* --------------------- New Section/Function --------------------- */
+function loadOdometer() {
+    const savedMiles = localStorage.getItem('truckOdometer') || '';
+    const numbersOnly = String(savedMiles).replace(/\D/g, '');
+    const input = document.getElementById('odometerInput');
+
+    if (input) {
+        input.value = numbersOnly ? Number(numbersOnly).toLocaleString() : '';
+    }
+}
+
+
+
+
+/* LOAD / BOL FUNCTIONS */
+/* --------------------- New Section/Function --------------------- */
+function getBOLPackets() {
+    return JSON.parse(localStorage.getItem('bolPackets') || '[]');
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function saveBOLPackets(packets) {
+    localStorage.setItem('bolPackets', JSON.stringify(packets));
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function createBOLPacket() {
+    let packets = getBOLPackets();
+    const activePackets = packets.filter(p => !p.delivered);
+
+    if (activePackets.length >= 3) {
+        alert('Maximum of 3 active load packets.');
+        return;
+    }
+
+    packets.push({
+        id: Date.now(),
+        created: new Date().toLocaleDateString(),
+        delivered: false,
+        pages: []
+    });
+
+    saveBOLPackets(packets);
+    renderBOLPackets();
+    updateAllMenuStatuses();
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function renderBOLPackets() {
+    const container = document.getElementById('bolList');
+
+    let packets = getBOLPackets();
+    packets = packets.filter(p => !p.delivered);
+
+    container.innerHTML = '';
+
+    packets.forEach((packet, index) => {
+        const div = document.createElement('div');
+        div.className = 'doc-row';
+
+        div.innerHTML = `
+            <div class="bol-packet-row">
+
+                <div class="bol-left">
+                    <h3 style="margin-top:0; margin-bottom:14px;">
+                        Load Packet ${index + 1}
+                    </h3>
+
+                    <p style="margin:8px 0;">
+                        <strong>File Name:</strong>
+                        ${packet.pages.length > 0 ? packet.pages[0].name : 'No file yet'}
+                    </p>
+
+                    <p style="margin:8px 0;">
+                        <strong>Number of Pics in Packet:</strong> ${packet.pages.length}
+                    </p>
+
+                    <input type="file"
+                           accept="image/*"
+                           multiple
+                           onchange="addBOLPages(event, ${packet.id})">
+
+                    <br><br>
+
+                    <button class="doc-button"
+                            onclick="markBOLDelivered(${packet.id})">
+                        Delivered
+                    </button>
+                </div>
+
+                <div class="bol-right">
+                    ${
+                        packet.pages.length > 0
+                        ? packet.pages.map((page, pageIndex) => `
+                            <div style="margin-bottom:20px;">
+                                <img src="${page.data}"
+                                     class="preview-image"
+                                     style="display:inline-block;"
+                                     onclick="toggleFullScreen(this)">
+
+                                <br>
+
+                                <button class="doc-button delete-button"
+                                        onclick="deleteBOLPage(${packet.id}, ${pageIndex})">
+                                    Delete This Pic
+                                </button>
+                            </div>
+                        `).join('')
+                        : `<p>No picture added yet.</p>`
+                    }
+                </div>
+
+            </div>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function compressImage(file, callback) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const img = new Image();
+
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+
+            const maxWidth = 900;
+            const scale = Math.min(1, maxWidth / img.width);
+
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const compressedData = canvas.toDataURL('image/jpeg', 0.5);
+
+            callback(compressedData);
+        };
+
+        img.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function addBOLPages(event, packetId) {
+    const files = Array.from(event.target.files);
+
+    if (files.length === 0) return;
+
+    let packets = getBOLPackets();
+    const packet = packets.find(p => p.id === packetId);
+
+    if (!packet) {
+        alert('Could not find this load packet.');
+        return;
+    }
+
+    let filesLoaded = 0;
+
+    files.forEach(file => {
+        compressImage(file, function(compressedImage) {
+            packet.pages.push({
+                name: file.name,
+                data: compressedImage
+            });
+
+            filesLoaded++;
+
+            if (filesLoaded === files.length) {
+                try {
+                    saveBOLPackets(packets);
+                }
+                catch (error) {
+                    alert('The BOL image is still too large to save. Try fewer pages at one time.');
+                    return;
+                }
+
+                renderBOLPackets();
+                updateAllMenuStatuses();
+            }
+        });
+    });
+
+    event.target.value = '';
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function deleteBOLPage(packetId, pageIndex) {
+    let packets = getBOLPackets();
+    const packet = packets.find(p => p.id === packetId);
+
+    if (!packet) return;
+
+    if (packet.pages.length === 0) {
+        packets = packets.filter(p => p.id !== packetId);
+    }
+    else {
+        packet.pages.splice(pageIndex, 1);
+
+        if (packet.pages.length === 0) {
+            packets = packets.filter(p => p.id !== packetId);
+        }
+    }
+
+    saveBOLPackets(packets);
+    renderBOLPackets();
+    updateAllMenuStatuses();
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function markBOLDelivered(packetId) {
+    let packets = getBOLPackets();
+    const packet = packets.find(p => p.id === packetId);
+
+    if (!packet) return;
+
+    packet.delivered = true;
+
+    saveBOLPackets(packets);
+    renderBOLPackets();
+    updateAllMenuStatuses();
+}
+
+
+
+/* --------------------- New Section/Function --------------------- */
+function getBOLMenuStatus() {
+    const packets = getBOLPackets();
+    const activePackets = packets.filter(p => !p.delivered);
+
+    if (activePackets.length > 0) {
+        return '<span class="status-ok">[OK]</span>';
+    }
+
+    return '<span class="status-bad">[BAD]</span>';
+}
+
+
+
+
+
+/* RECEIPT VAULT FUNCTIONS */
+function getReceipts() {
+    return JSON.parse(localStorage.getItem('receiptVaultData') || '[]');
+}
+
+function saveReceipts(receipts) {
+    localStorage.setItem('receiptVaultData', JSON.stringify(receipts));
+}
+
+function receiptCurrency(value) {
+    const num = Number(value || 0);
+    return num.toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    });
+}
+
+function parseReceiptAmount(value) {
+    return Number(String(value || '').replace(/[^0-9.]/g, '')) || 0;
+}
+
+function clearReceiptForm() {
+    document.getElementById('receiptCategoryInput').value = 'Fuel';
+    document.getElementById('receiptAmountInput').value = '';
+    document.getElementById('receiptDateInput').value = new Date().toISOString().slice(0, 10);
+    document.getElementById('receiptNotesInput').value = '';
+    document.getElementById('receiptFileInput').value = '';
+
+    const status = document.getElementById('receiptSavedStatus');
+    if (status) status.innerText = '';
+}
+
+function saveReceipt() {
+    const category = document.getElementById('receiptCategoryInput').value;
+    const amount = parseReceiptAmount(document.getElementById('receiptAmountInput').value);
+    const date = document.getElementById('receiptDateInput').value || new Date().toISOString().slice(0, 10);
+    const notes = document.getElementById('receiptNotesInput').value.trim();
+    const fileInput = document.getElementById('receiptFileInput');
+    const file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+
+    if (!amount && !notes && !file) {
+        alert('Enter an amount, a note, or choose a receipt picture/PDF.');
+        return;
+    }
+
+    const receipt = {
+        id: Date.now(),
+        category: category,
+        amount: amount,
+        date: date,
+        notes: notes,
+        fileName: file ? file.name : '',
+        fileType: file ? file.type : '',
+        fileData: ''
+    };
+
+    if (file) {
+        saveReceiptFile(file, function(fileData, fileType) {
+            receipt.fileData = fileData;
+            receipt.fileType = fileType;
+            finishSaveReceipt(receipt);
+        });
+    } else {
+        finishSaveReceipt(receipt);
+    }
+}
+
+function saveReceiptFile(file, callback) {
+    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            callback(e.target.result, 'application/pdf');
+        };
+
+        reader.readAsDataURL(file);
+        return;
+    }
+
+    compressReceiptImage(file, function(imageData) {
+        callback(imageData, 'image/jpeg');
+    });
+}
+
+function compressReceiptImage(file, callback) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const img = new Image();
+
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const maxWidth = 700;
+            const scale = Math.min(1, maxWidth / img.width);
+
+            canvas.width = Math.round(img.width * scale);
+            canvas.height = Math.round(img.height * scale);
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const compressedData = canvas.toDataURL('image/jpeg', 0.45);
+            callback(compressedData);
+        };
+
+        img.src = e.target.result;
+    };
+
+    reader.readAsDataURL(file);
+}
+
+function finishSaveReceipt(receipt) {
+    const receipts = getReceipts();
+    receipts.push(receipt);
+
+    try {
+        saveReceipts(receipts);
+    } catch (error) {
+        alert('Receipt is too large to save. Try a smaller picture, or save the receipt without the file.');
+        return;
+    }
+
+    const status = document.getElementById('receiptSavedStatus');
+    if (status) {
+        status.innerText = 'Receipt saved';
+    }
+
+    clearReceiptForm();
+    renderReceiptVault();
+}
+
+function renderReceiptVault() {
+    renderReceiptTotals();
+    renderReceiptList();
+}
+
+function renderReceiptTotals() {
+    const box = document.getElementById('receiptTotalsBox');
+    if (!box) return;
+
+    const receipts = getReceipts();
+
+    if (receipts.length === 0) {
+        box.innerHTML = '<p>No receipts saved yet.</p>';
+        return;
+    }
+
+    const totals = {};
+    let grandTotal = 0;
+
+    receipts.forEach(receipt => {
+        const amount = Number(receipt.amount || 0);
+        grandTotal += amount;
+        totals[receipt.category] = (totals[receipt.category] || 0) + amount;
+    });
+
+    let html = '<p><strong>Total Receipts:</strong> ' + receipts.length + '</p>';
+    html += '<p><strong>Grand Total:</strong> ' + receiptCurrency(grandTotal) + '</p>';
+    html += '<hr>';
+
+    Object.keys(totals).sort().forEach(category => {
+        html += '<div><strong>' + escapeHtml(category) + ':</strong> ' + receiptCurrency(totals[category]) + '</div>';
+    });
+
+    box.innerHTML = html;
+}
+
+function renderReceiptList() {
+    const list = document.getElementById('receiptList');
+    if (!list) return;
+
+    const filter = document.getElementById('receiptFilterInput')
+        ? document.getElementById('receiptFilterInput').value
+        : 'All';
+
+    let receipts = getReceipts();
+
+    if (filter !== 'All') {
+        receipts = receipts.filter(receipt => receipt.category === filter);
+    }
+
+    receipts.sort((a, b) => String(b.date).localeCompare(String(a.date)) || b.id - a.id);
+
+    list.innerHTML = '';
+
+    if (receipts.length === 0) {
+        list.innerHTML = '<p>No receipts found for this category.</p>';
+        return;
+    }
+
+    receipts.forEach(receipt => {
+        const card = document.createElement('div');
+        card.className = 'receipt-card';
+
+        let fileHtml = '<p>No picture/PDF saved.</p>';
+
+        if (receipt.fileData && receipt.fileType === 'application/pdf') {
+            fileHtml = `
+                <div class="receipt-pdf-box">
+                    <div>
+                        <strong>PDF Receipt</strong><br><br>
+                        <a href="${receipt.fileData}" target="_blank" download="${escapeHtml(receipt.fileName || 'receipt.pdf')}">
+                            Open / Download PDF
+                        </a>
+                    </div>
+                </div>
+            `;
+        } else if (receipt.fileData) {
+            fileHtml = `
+                <img src="${receipt.fileData}"
+                     class="receipt-thumb"
+                     onclick="toggleFullScreen(this)">
+            `;
+        }
+
+        card.innerHTML = `
+            <div class="receipt-card-info">
+                <h3>${escapeHtml(receipt.category)}</h3>
+                <p><strong>Amount:</strong> ${receiptCurrency(receipt.amount)}</p>
+                <p><strong>Date:</strong> ${escapeHtml(receipt.date || '')}</p>
+                ${receipt.notes ? '<p><strong>Notes:</strong> ' + escapeHtml(receipt.notes) + '</p>' : ''}
+                ${receipt.fileName ? '<p><strong>File:</strong> ' + escapeHtml(receipt.fileName) + '</p>' : ''}
+
+                <button class="doc-button delete-button"
+                        onclick="deleteReceipt(${receipt.id})">
+                    Delete Receipt
+                </button>
+            </div>
+
+            <div>
+                ${fileHtml}
+            </div>
+        `;
+
+        list.appendChild(card);
+    });
+}
+
+function deleteReceipt(receiptId) {
+    if (!confirm('Delete this receipt?')) return;
+
+    let receipts = getReceipts();
+    receipts = receipts.filter(receipt => receipt.id !== receiptId);
+    saveReceipts(receipts);
+    renderReceiptVault();
+}
+
+function deleteAllReceipts() {
+    if (!confirm('Delete ALL receipts? This cannot be undone unless you have a backup.')) return;
+
+    localStorage.removeItem('receiptVaultData');
+    renderReceiptVault();
+}
+
+function exportReceiptReport() {
+    const receipts = getReceipts().sort((a, b) => String(a.date).localeCompare(String(b.date)));
+
+    if (receipts.length === 0) {
+        alert('No receipts to export.');
+        return;
+    }
+
+    const driverName = localStorage.getItem('driverName') || '';
+    const companyName = localStorage.getItem('companyName') || '';
+    const created = new Date().toLocaleString();
+
+    const totals = {};
+    let grandTotal = 0;
+
+    receipts.forEach(receipt => {
+        const amount = Number(receipt.amount || 0);
+        grandTotal += amount;
+        totals[receipt.category] = (totals[receipt.category] || 0) + amount;
+    });
+
+    let totalsHtml = '<h2>Totals</h2>';
+    totalsHtml += '<p><strong>Grand Total:</strong> ' + receiptCurrency(grandTotal) + '</p>';
+    Object.keys(totals).sort().forEach(category => {
+        totalsHtml += '<p><strong>' + escapeHtml(category) + ':</strong> ' + receiptCurrency(totals[category]) + '</p>';
+    });
+
+    let receiptHtml = '';
+
+    receipts.forEach(receipt => {
+        let fileHtml = '';
+
+        if (receipt.fileData && receipt.fileType === 'application/pdf') {
+            fileHtml = '<p><strong>PDF receipt saved in TruckDocs backup.</strong></p>';
+        } else if (receipt.fileData) {
+            fileHtml = '<img src="' + receipt.fileData + '">';
+        }
+
+        receiptHtml += `
+            <div class="receipt">
+                <h2>${escapeHtml(receipt.category)} - ${receiptCurrency(receipt.amount)}</h2>
+                <p><strong>Date:</strong> ${escapeHtml(receipt.date || '')}</p>
+                ${receipt.notes ? '<p><strong>Notes:</strong> ' + escapeHtml(receipt.notes) + '</p>' : ''}
+                ${receipt.fileName ? '<p><strong>File:</strong> ' + escapeHtml(receipt.fileName) + '</p>' : ''}
+                ${fileHtml}
+            </div>
+        `;
+    });
+
+    const report = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TruckDocs Receipt Report</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 25px; }
+.receipt { page-break-after: always; margin-bottom: 35px; }
+img { max-width: 95%; border: 1px solid #333; }
+</style>
+</head>
+<body>
+<h1>TruckDocs Receipt Report</h1>
+<p><strong>Created:</strong> ${created}</p>
+${driverName ? '<p><strong>Driver:</strong> ' + escapeHtml(driverName) + '</p>' : ''}
+${companyName ? '<p><strong>Company:</strong> ' + escapeHtml(companyName) + '</p>' : ''}
+${totalsHtml}
+<hr>
+${receiptHtml}
+</body>
+</html>`;
+
+    const blob = new Blob([report], { type: 'text/html' });
+    const link = document.createElement('a');
+    const today = new Date().toISOString().slice(0, 10);
+
+    link.href = URL.createObjectURL(blob);
+    link.download = 'TruckDocs-Receipt-Report-' + today + '.html';
+    link.click();
+}
+
+function escapeHtml(value) {
+    return String(value || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+
+/* ===================== BACKUP FUNCTIONS ===================== */
+
+async function exportBackup() {
+
+    const backupData = {};
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        backupData[key] = localStorage.getItem(key);
+    }
+
+    const backupText = JSON.stringify(backupData, null, 2);
+    const today = new Date().toISOString().slice(0, 10);
+    const fileName = 'TruckDocs-Backup-' + today + '.json';
+    const blob = new Blob([backupText], { type: 'application/json' });
+    const status = document.getElementById('backupStatus');
+
+    // iPhone / iPad preferred method:
+    // Open the native Share Sheet so the driver can choose
+    // Save to Files > iCloud Drive > TruckDocs Backups.
+    try {
+        const backupFile = new File([blob], fileName, { type: 'application/json' });
+
+        if (navigator.canShare && navigator.canShare({ files: [backupFile] }) && navigator.share) {
+            await navigator.share({
+                files: [backupFile],
+                title: 'TruckDocs Backup',
+                text: 'Save this TruckDocs backup to iCloud Drive or another safe location.'
+            });
+
+            if (status) {
+                status.innerText = 'Backup ready. Choose Save to Files > iCloud Drive to keep ' + fileName + '.';
+            }
+
+            return;
+        }
+    } catch (shareError) {
+        // If the user cancels the Share Sheet, do not treat it as a broken app.
+        if (status) {
+            status.innerText = 'Backup was not saved yet. Tap Export Backup again and choose Save to Files.';
+        }
+        return;
+    }
+
+    // Windows / desktop fallback method:
+    // This still works in normal browsers that allow downloads.
+    try {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setTimeout(function() {
+            URL.revokeObjectURL(link.href);
+        }, 1000);
+
+        if (status) {
+            status.innerText = 'Backup exported successfully. Look for ' + fileName + '.';
+        }
+    } catch (downloadError) {
+        if (status) {
+            status.innerText = 'This viewer blocked backup export. Open TruckDocs in Safari/Home Screen mode, or use the official app when available.';
+        }
+
+        alert('This viewer blocked backup export. On iPhone, use the Share Sheet version from Safari/Home Screen mode when possible.');
+    }
+}
+
+function importBackup(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        try {
+
+            let backupText = String(e.target.result || '');
+
+            // Remove invisible byte-order mark if iCloud/Files adds one.
+            backupText = backupText.replace(/^\uFEFF/, '').trim();
+
+            // Guard against accidentally choosing index.html instead of the JSON backup file.
+            if (backupText.toLowerCase().startsWith('<!doctype') ||
+                backupText.toLowerCase().startsWith('<html')) {
+                alert('That looks like index.html, not your TruckDocs backup file. Choose the TruckDocs-Backup-YYYY-MM-DD.json file.');
+                return;
+            }
+
+            const backupData = JSON.parse(backupText);
+
+            if (!backupData || typeof backupData !== 'object' || Array.isArray(backupData)) {
+                throw new Error('Backup file is not a TruckDocs data object.');
+            }
+
+            let restoredCount = 0;
+
+            for (const key in backupData) {
+
+                if (!Object.prototype.hasOwnProperty.call(backupData, key)) continue;
+
+                const value = backupData[key];
+
+                if (value === null || value === undefined) continue;
+
+                localStorage.setItem(key, String(value));
+
+                restoredCount++;
+            }
+
+            loadOdometer();
+            loadSettings();
+            applyMenuColor();
+            applyHomeBackground();
+            setHomeBackgroundVisible(document.getElementById('mainMenu').style.display !== 'none');
+            updateAllMenuStatuses();
+
+            if (typeof getMaintenanceItems === 'function') {
+                getMaintenanceItems().forEach(loadMaintenanceItem);
+            }
+
+            if (document.getElementById('bolScreen').style.display !== 'none') {
+                renderBOLPackets();
+            }
+
+            if (document.getElementById('receiptVaultScreen').style.display !== 'none') {
+                renderReceiptVault();
+            }
+
+            const status = document.getElementById('backupStatus');
+
+            if (status) {
+                status.innerText =
+                    'Backup restored successfully. ' + restoredCount + ' saved items loaded.';
+            }
+
+            alert('Backup restored successfully. Your restored data has been loaded.');
+
+        } catch (error) {
+
+            const status = document.getElementById('backupStatus');
+
+            if (status) {
+                status.innerText =
+                    'Restore failed. Choose the TruckDocs-Backup JSON file, not index.html.';
+            }
+
+            alert('Could not restore backup file. Make sure you chose the TruckDocs-Backup JSON file, not index.html.');
+        }
+
+        event.target.value = '';
+    };
+
+    reader.onerror = function() {
+        alert('The iPhone could not read that file. Try saving the backup file to On My iPhone or iCloud Drive, then choose it again.');
+        event.target.value = '';
+    };
+
+    reader.readAsText(file);
+}
+
+
+
+/* INSPECTION FUNCTIONS */
+
+/* --------------------- New Section/Function --------------------- */
+function loadInspectionData() {
+    loadText('inspectionEmail');
+    renderInspectionItems();
+}
+
+function getInspectionItems() {
+    const items = [
+        { title: 'Driver License', key: 'licenseFront', dateKey: 'licenseFrontDate', group: 'Driver' },
+        { title: 'Medical Card', key: 'medicalCard', dateKey: 'medicalCardDate', group: 'Driver' },
+
+        { title: 'Truck Registration', key: 'truckRegistration', dateKey: 'truckRegistrationDate', group: 'Truck' },
+        { title: 'Truck Insurance', key: 'truckInsurance', dateKey: 'truckInsuranceDate', group: 'Truck' },
+        { title: 'Truck Annual Inspection', key: 'truckAnnualInspection', dateKey: 'truckAnnualInspectionDate', group: 'Truck' },
+        { title: 'Cab Card', key: 'truckCabCard', dateKey: 'truckCabCardDate', group: 'Truck' },
+
+        { title: 'Trailer Registration', key: 'trailerRegistration', dateKey: 'trailerRegistrationDate', group: 'Trailer' },
+        { title: 'Trailer Insurance', key: 'trailerInsurance', dateKey: 'trailerInsuranceDate', group: 'Trailer' },
+        { title: 'Trailer Annual Inspection', key: 'trailerInspection', dateKey: 'trailerInspectionDate', group: 'Trailer' },
+
+        { title: localStorage.getItem('permit1Name') || 'Permit 1', key: 'permit1', dateKey: 'permit1Date', group: 'Permits' },
+        { title: localStorage.getItem('permit2Name') || 'Permit 2', key: 'permit2', dateKey: 'permit2Date', group: 'Permits' },
+        { title: localStorage.getItem('permit3Name') || 'Permit 3', key: 'permit3', dateKey: 'permit3Date', group: 'Permits' },
+        { title: localStorage.getItem('permit4Name') || 'Permit 4', key: 'permit4', dateKey: 'permit4Date', group: 'Permits' },
+        { title: localStorage.getItem('permit5Name') || 'Permit 5', key: 'permit5', dateKey: 'permit5Date', group: 'Permits' }
+    ];
+
+    const packets = getBOLPackets().filter(packet => !packet.delivered && packet.pages && packet.pages.length > 0);
+
+    packets.forEach((packet, packetIndex) => {
+        packet.pages.forEach((page, pageIndex) => {
+            items.push({
+                title: 'Load / BOL Packet ' + (packetIndex + 1) + ' - Page ' + (pageIndex + 1),
+                key: 'bol_' + packet.id + '_' + pageIndex,
+                dateKey: '',
+                group: 'Load / BOL',
+                imageData: page.data,
+                fileName: page.name || ''
+            });
+        });
+    });
+
+    return items.filter(item => item.imageData || localStorage.getItem(item.key));
+}
+
+function renderInspectionItems() {
+    const container = document.getElementById('inspectionList');
+
+    if (!container) return;
+
+    const items = getInspectionItems();
+
+    container.innerHTML = '';
+
+    if (items.length === 0) {
+        container.innerHTML = '<p>No inspection documents have been saved yet.</p>';
+        return;
+    }
+
+    let currentGroup = '';
+
+    items.forEach(item => {
+        if (item.group !== currentGroup) {
+            currentGroup = item.group;
+            const heading = document.createElement('h2');
+            heading.innerText = currentGroup;
+            container.appendChild(heading);
+        }
+
+        const imageData = item.imageData || localStorage.getItem(item.key);
+        const dateValue = item.dateKey ? localStorage.getItem(item.dateKey) : '';
+        const status = item.dateKey ? getDateStatusText(item.dateKey, dateValue) : { text: '', color: 'black' };
+
+        const row = document.createElement('div');
+        row.className = 'doc-row';
+
+        row.innerHTML = `
+            <div class="doc-info">
+                <h3>
+                    <input class="inspection-select"
+                           type="checkbox"
+                           data-inspection-key="${item.key}">
+                    ${item.title}
+                </h3>
+
+                ${dateValue ? '<div>Expiration Date: ' + dateValue + '</div>' : ''}
+                ${status.text ? '<div class="status" style="color:' + status.color + ';">' + status.text + '</div>' : ''}
+                ${item.fileName ? '<div><strong>File:</strong> ' + item.fileName + '</div>' : ''}
+            </div>
+
+            <div class="doc-photo">
+                <img src="${imageData}"
+                     class="inspection-image"
+                     style="display:block;"
+                     onclick="toggleFullScreen(this)">
+            </div>
+        `;
+
+        container.appendChild(row);
+    });
+}
+
+function getDateStatusText(key, dateString) {
+    if (!dateString) return { text: '', color: 'black' };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const expDate = new Date(dateString);
+    expDate.setHours(0, 0, 0, 0);
+
+    const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+        return { text: 'EXPIRED', color: 'red' };
+    }
+
+    if (diffDays <= 30) {
+        return { text: 'WARNING: Expires in ' + diffDays + ' day(s)', color: 'orange' };
+    }
+
+    return { text: 'OK - expires in ' + diffDays + ' day(s)', color: 'green' };
+}
+
+function selectAllInspectionDocs() {
+    document.querySelectorAll('[data-inspection-key]').forEach(box => {
+        box.checked = true;
+    });
+}
+
+function clearInspectionDocs() {
+    document.querySelectorAll('[data-inspection-key]').forEach(box => {
+        box.checked = false;
+    });
+}
+
+function emailSelectedInspectionDocs() {
+    const selectedKeys = Array.from(document.querySelectorAll('[data-inspection-key]:checked'))
+        .map(box => box.getAttribute('data-inspection-key'));
+
+    const statusBox = document.getElementById('inspectionEmailStatus');
+
+    if (selectedKeys.length === 0) {
+        if (statusBox) statusBox.innerText = 'Select at least one item first.';
+        return;
+    }
+
+    const email = document.getElementById('inspectionEmailInput').value.trim();
+
+    if (email) {
+        localStorage.setItem('inspectionEmail', email);
+    }
+
+    const allItems = getInspectionItems();
+    const selectedItems = allItems.filter(item => selectedKeys.includes(item.key));
+
+    const packetHtml = buildInspectionPacketHtml(selectedItems);
+
+    const blob = new Blob([packetHtml], { type: 'text/html' });
+    const link = document.createElement('a');
+    const today = new Date().toISOString().slice(0, 10);
+
+    link.href = URL.createObjectURL(blob);
+    link.download = 'TruckDocs-Inspection-Packet-' + today + '.html';
+    link.click();
+
+    const subject = encodeURIComponent('TruckDocs Inspection Packet');
+    const body = encodeURIComponent(
+        'I created a TruckDocs inspection packet with these selected items:\n\n' +
+        selectedItems.map(item => '- ' + item.title).join('\n') +
+        '\n\nAttach the downloaded TruckDocs-Inspection-Packet file to this email.'
+    );
+
+    if (email) {
+        window.location.href = 'mailto:' + encodeURIComponent(email) + '?subject=' + subject + '&body=' + body;
+    } else {
+        window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+    }
+
+    if (statusBox) {
+        statusBox.innerText = 'Inspection packet created. Attach the downloaded packet to the email draft.';
+        statusBox.style.color = 'green';
+    }
+}
+
+function buildInspectionPacketHtml(items) {
+    const today = new Date().toLocaleString();
+
+    let body = '';
+
+    items.forEach(item => {
+        const imageData = item.imageData || localStorage.getItem(item.key);
+        const dateValue = item.dateKey ? localStorage.getItem(item.dateKey) : '';
+        const status = item.dateKey ? getDateStatusText(item.dateKey, dateValue) : { text: '', color: 'black' };
+
+        body += `
+            <div class="item">
+                <h2>${item.title}</h2>
+                ${dateValue ? '<p><strong>Expiration Date:</strong> ' + dateValue + '</p>' : ''}
+                ${status.text ? '<p style="color:' + status.color + '; font-weight:bold;">' + status.text + '</p>' : ''}
+                <img src="${imageData}">
+            </div>
+        `;
+    });
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TruckDocs Inspection Packet</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 25px; }
+.item { page-break-after: always; margin-bottom: 35px; }
+img { max-width: 95%; border: 1px solid #333; }
+</style>
+</head>
+<body>
+<h1>TruckDocs Inspection Packet</h1>
+<p>Created: ${today}</p>
+${body}
+</body>
+</html>`;
+}
+
+
+
+
+
+
+/* MENU STATUS FUNCTIONS */
+function setMenuButtonStatus(buttonId, originalText, status) {
+    const button = document.getElementById(buttonId);
+
+    if (!button) return;
+
+    const prefix = status ? status + ' ' : '';
+    button.innerHTML = prefix + originalText;
+}
+
+function getWorstStatus(keys) {
+    let worst = '';
+    let hasAnyDate = false;
+
+    keys.forEach(key => {
+        const savedDate = localStorage.getItem(key);
+
+        if (!savedDate) return;
+
+        hasAnyDate = true;
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        const expDate = new Date(savedDate);
+        expDate.setHours(0,0,0,0);
+
+        const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0 || diffDays <= 10) {
+            worst = '<span class="status-bad">[BAD]</span>';
+        }
+        else if (diffDays <= 30 && worst.indexOf('[BAD]') === -1) {
+            worst = '<span class="status-warn">[WARN]</span>';
+        }
+        else if (worst === '') {
+            worst = '<span class="status-ok">[OK]</span>';
+        }
+    });
+
+    if (!hasAnyDate) return '';
+
+    return worst;
+}
+
+function updateMaintenanceMenuStatus() {
+    const btn = document.getElementById('maintenanceMenuBtn');
+
+    if (!btn) return;
+
+    const data = JSON.parse(localStorage.getItem('maintenanceData') || '{}');
+    const currentOdometer = Number(
+        String(localStorage.getItem('truckOdometer') || '0').replace(/\D/g, '')
+    );
+
+    let hasOverdue = false;
+    let hasWarning = false;
+    let hasGood = false;
+
+    const items = getMaintenanceItems();
+
+    items.forEach(item => {
+        if (!data[item]) return;
+
+        const miles = Number(String(data[item].miles || '0').replace(/\D/g, ''));
+        const interval = Number(String(data[item].interval || '0').replace(/\D/g, ''));
+
+        if (!miles || !interval || !currentOdometer) return;
+
+        const milesSince = currentOdometer - miles;
+        const milesLeft = interval - milesSince;
+
+        if (milesLeft <= 0) {
+            hasOverdue = true;
+        }
+        else if (milesLeft <= 2000) {
+            hasWarning = true;
+        }
+        else {
+            hasGood = true;
+        }
+    });
+
+if (hasOverdue) {
+    btn.innerHTML = '<span class="status-bad">[BAD]</span> Preventative Maintenance';
+}
+else if (hasWarning) {
+    btn.innerHTML = '<span class="status-warn">[WARN]</span> Preventative Maintenance';
+}
+else if (hasGood) {
+    btn.innerHTML = '<span class="status-ok">[OK]</span> Preventative Maintenance';
+}
+else {
+    btn.innerHTML = 'Preventative Maintenance';
+}
+}
+
+
+function updateAllMenuStatuses() {
+    setMenuButtonStatus(
+        'driverMenuBtn',
+        'Driver Documents',
+        getWorstStatus(driverDateKeys)
+    );
+
+    setMenuButtonStatus(
+        'truckMenuBtn',
+        'Truck Documents',
+        getWorstStatus(truckDateKeys)
+    );
+
+    setMenuButtonStatus(
+        'trailerMenuBtn',
+        'Trailer Documents',
+        getWorstStatus(trailerDateKeys)
+    );
+
+    setMenuButtonStatus(
+        'permitsMenuBtn',
+        'Permits',
+        getWorstStatus(permitsDateKeys)
+    );
+
+    setMenuButtonStatus(
+        'bolMenuBtn',
+        'Load / BOL',
+        getBOLMenuStatus()
+    );
+
+    updateMaintenanceMenuStatus();
+}
+
+window.onload = function() {
+    const versionBox = document.getElementById('versionNumber');
+
+    if (versionBox) {
+        versionBox.innerText = APP_VERSION;
+    }
+
+    loadOdometer();
+    applyMenuColor();
+    updateAllMenuStatuses();
+    applyHomeBackground();
+
+    if (localStorage.getItem('inspectionLockActive') === 'true') {
+        showInspectionLocked(false);
+    } else {
+        setHomeBackgroundVisible(true);
+    }
+};
+
+
+
+/* ===================== INSPECTION LOCK PROTECTION ===================== */
+window.addEventListener('keydown', function(event) {
+    if (!isInspectionLocked()) return;
+
+    // Browser security does not allow us to truly block Esc from leaving fullscreen,
+    // but we can keep TruckDocs locked and block common in-app navigation shortcuts.
+    if (event.key === 'Backspace' || event.altKey || event.ctrlKey || event.metaKey) {
+        event.preventDefault();
+    }
+});
+
+document.addEventListener('fullscreenchange', function() {
+    if (isInspectionLocked() && !document.fullscreenElement) {
+        showFullscreenExitWarning();
+    }
+});
+
+window.addEventListener('popstate', function() {
+    if (isInspectionLocked()) {
+        history.pushState(null, '', window.location.href);
+        alert('Inspection Mode is locked. Driver PIN required to exit.');
+        showInspectionLocked(false);
+    }
+});
+
+window.addEventListener('focus', function() {
+    if (isInspectionLocked()) {
+        showInspectionLocked(false);
+    }
+});
+
+history.pushState(null, '', window.location.href);
+
+</script>
+</body>
+</html>
