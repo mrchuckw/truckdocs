@@ -6,29 +6,72 @@
 
     <!-- Change this number when you make an update -->
     <script>
-        const APP_VERSION = '1.1.28';
+        const APP_VERSION = '1.2.08';
     </script>
 
     <style>
+        :root {
+            --app-header-height: 68px;
+            --screen-topbar-height: 56px;
+        }
+
+        html {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+            box-sizing: border-box;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             text-align: center;
+            padding-top: var(--app-header-height);
+            padding-bottom: 44px;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         .header {
-            background: var(--menuButtonColor, #8b5e3c);           
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 8000;
+            height: var(--app-header-height);
+            width: 100%;
+            max-width: 100%;
+            overflow: hidden;
+            background: var(--menuButtonColor, #8b5e3c);
             color: white;
-            padding: 15px;
+            padding: 12px 16px;
             font-size: 28px;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+            column-gap: 10px;
             align-items: center;
+            box-sizing: border-box;
+        }
+
+        .header > div:nth-child(2) {
+            min-width: 0;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .odometer-box {
             font-size: 16px;
+            min-width: 0;
+            text-align: left;
+            white-space: nowrap;
         }
 
         .odometer-box input {
@@ -39,9 +82,11 @@
         }
 
         .version-box {
-            width: 170px;
+            width: auto;
+            min-width: 0;
             font-size: 16px;
             text-align: right;
+            white-space: nowrap;
         }
 
         .version-box span {
@@ -434,7 +479,6 @@
             background: rgba(244, 244, 244, 0.35);
         }
 
-        .header,
         #mainMenu,
         #driverScreen,
         #truckScreen,
@@ -446,6 +490,7 @@
         #bolScreen,
         #receiptVaultScreen,
         #maintenanceScreen,
+        #mpgTrackerScreen,
         #settingsScreen {
             position: relative;
             z-index: 1;
@@ -535,35 +580,94 @@
         }
 
 
+        .fuel-fields-box {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            border: 2px solid #d9edf7;
+            border-radius: 10px;
+            background: #f8fcff;
+        }
+
+        .fuel-fields-box input {
+            width: 260px;
+            max-width: 95%;
+            padding: 8px;
+            font-size: 15px;
+            margin-top: 4px;
+        }
+
+        .mpg-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 14px;
+        }
+
+        .mpg-table th,
+        .mpg-table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .mpg-table th {
+            background: #eef4f6;
+        }
+
+        .mpg-note {
+            color: #555;
+            font-size: 13px;
+        }
+
+
 /* ==================== TAB TOP BAR ==================== */
 .screen-topbar {
-    position: sticky;
-    top: 0;
-    z-index: 5000;
+    position: fixed;
+    top: var(--app-header-height);
+    left: 0;
+    right: 0;
+    z-index: 7000;
+    height: var(--screen-topbar-height);
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     background: var(--menuButtonColor, #2c3e50);
     color: white;
-    padding: 12px 18px;
-    margin: -20px -20px 20px -20px;
+    padding: 10px 18px;
+    margin: 0;
+    box-sizing: border-box;
     box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
 
-    /* IMPORTANT */
-    position: relative;
+#driverScreen,
+#truckScreen,
+#trailerScreen,
+#permitsScreen,
+#inspectionPrepScreen,
+#inspectionScreen,
+#backupScreen,
+#bolScreen,
+#receiptVaultScreen,
+#maintenanceScreen,
+#settingsScreen,
+#mpgTrackerScreen,
+#eldScreen {
+    padding-top: calc(var(--screen-topbar-height) + 22px) !important;
 }
 
 /* HOME BUTTON AREA */
 .screen-topbar .topbar-left {
     position: absolute;
-
-    /* halfway between left edge and centered title */
-    left: 25%;
-
-    transform: translateX(-50%);
+    left: 18px;
+    transform: none;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+    max-width: 30%;
 }
 
 /* PAGE TITLE */
@@ -572,6 +676,9 @@
     text-align: center;
     font-size: 24px;
     font-weight: bold;
+    padding-left: 115px;
+    padding-right: 160px;
+    min-width: 0;
 }
 
 /* RIGHT SIDE */
@@ -581,6 +688,8 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    max-width: 32%;
+    overflow: hidden;
 }
 
 /* HOME BUTTON */
@@ -595,16 +704,138 @@
     cursor: pointer;
 }
 
+
+/* RIGHT SIDE STATUS IN TAB BAR */
+.topbar-status {
+    font-size: 12px;
+    line-height: 1.25;
+    text-align: right;
+    min-width: 0;
+    max-width: 220px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* FIXED BOTTOM FOOTER */
+.app-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    z-index: 7000;
+    background: #1f2933;
+    color: white;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 14px;
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.22);
+    font-size: 13px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.footer-left,
+.footer-center,
+.footer-right {
+    flex: 1;
+}
+
+.footer-left {
+    text-align: left;
+}
+
+.footer-center {
+    text-align: center;
+}
+
+.footer-right {
+    text-align: right;
+}
+
+.footer-ok {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.footer-bad {
+    color: #ff4d4d;
+    font-weight: bold;
+}
+
+.backup-meta-box,
+.mpg-summary-box {
+    width: 85%;
+    max-width: 950px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 12px;
+    padding: 18px;
+    text-align: left;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+.hidden-file-input {
+    display: none;
+}
+
 /* MOBILE */
 @media (max-width: 600px) {
 
+    :root {
+        --app-header-height: 58px;
+        --screen-topbar-height: 52px;
+    }
+
+    .header {
+        grid-template-columns: minmax(98px, 1fr) minmax(120px, auto) minmax(78px, 1fr);
+        padding: 10px 8px;
+        font-size: 22px;
+        column-gap: 6px;
+    }
+
+    .odometer-box {
+        font-size: 13px;
+    }
+
+    .odometer-box input {
+        width: 92px;
+        font-size: 14px;
+    }
+
+    .version-box {
+        font-size: 13px;
+    }
+
+    .version-box span {
+        min-width: 52px;
+        padding: 4px;
+    }
+
     .screen-topbar .topbar-left {
-        left: 15px;
+        left: 8px;
         transform: none;
+        max-width: 28%;
     }
 
     .screen-topbar .topbar-center {
-        font-size: 19px;
+        font-size: 18px;
+        padding-left: 82px;
+        padding-right: 88px;
+    }
+
+    .screen-topbar .topbar-right {
+        right: 8px;
+        max-width: 32%;
+    }
+
+    .topbar-status {
+        font-size: 10px;
+        min-width: 82px;
     }
 
     .screen-home-button {
@@ -675,7 +906,7 @@
     <button id="truckMenuBtn" onclick="showTruck()">Truck Documents</button>
     <button id="permitsMenuBtn" onclick="showPermits()">Permits</button>
     <button id="trailerMenuBtn" onclick="showTrailer()">Trailer Documents</button>
-    <button>IFTA Reports</button>
+    <button id="mpgMenuBtn" onclick="showMPGTracker()">MPG Tracker</button>
     <button id="bolMenuBtn" onclick="showBOL()">Load / BOL</button>
     <button>ELD Reports</button>
     <button id="maintenanceMenuBtn"
@@ -695,7 +926,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Prepare Inspection Mode</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
     <div class="inspection-prep-box">
@@ -751,7 +982,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Load / BOL</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
     <br><br>
@@ -780,7 +1011,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Backup / Restore</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
     <br><br><br>
@@ -791,8 +1022,13 @@
 
     <br><br>
 
+    <button class="doc-button" onclick="document.getElementById('importBackupFile').click()">
+        Restore
+    </button>
+
     <input type="file"
            id="importBackupFile"
+           class="hidden-file-input"
            accept=".json,application/json,text/plain"
            onchange="importBackup(event)">
 
@@ -800,10 +1036,19 @@
 
     <div id="backupStatus"></div>
 
-    <p class="inspection-note">
-        Restore only the file named like TruckDocs-Backup-YYYY-MM-DD.json.
-        Do not choose index.html for restore.
-    </p>
+    <div class="backup-meta-box">
+        <h3>Backup Information</h3>
+        <p><strong>Last Backup:</strong> <span id="lastBackupDisplay">Never</span></p>
+        <p><strong>Preferred Backup Location:</strong> <span id="backupPathDisplay">iCloud Drive / TruckDocs Backups</span></p>
+        <p class="inspection-note">
+            Web app limitation: TruckDocs can prepare and name the backup, then your iPhone/iPad asks where to save it.
+            Choose Save to Files, then choose your preferred location.
+        </p>
+        <p class="inspection-note">
+            Restore only the file named like LastName-DriverNumber-YYYY-MM-DD.json.
+            Do not choose index.html for restore.
+        </p>
+    </div>
 
 </div>
 
@@ -816,7 +1061,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Driver Documents</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
     <div class="doc-row">
@@ -879,7 +1124,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Truck Documents</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
 
@@ -1097,6 +1342,71 @@
 
 </div>
 
+
+<div class="doc-row">
+    <div class="doc-info">
+        <h3>Truck Lease Agreement</h3>
+        <label>Expiration Date:</label><br>
+        <input id="truckLeaseAgreementDateInput"
+               type="date"
+               onchange="saveDate('truckLeaseAgreementDate', this.value)">
+        <div id="truckLeaseAgreementStatus" class="status"></div>
+
+        <div id="truckLeaseAgreementUploadBox"><br>
+            <input id="truckLeaseAgreementFileInput"
+                   type="file"
+                   accept="image/*,.pdf,application/pdf"
+                   capture="environment"
+                   onchange="saveDocument(event, 'truckLeaseAgreement')">
+        </div>
+
+        <div id="truckLeaseAgreementSaved" class="saved-message"></div>
+        <div id="truckLeaseAgreementControls" style="display:none;">
+            <button class="doc-button" onclick="replaceDocument('truckLeaseAgreement')">Replace Document</button>
+            <button class="doc-button delete-button" onclick="deleteDocument('truckLeaseAgreement')">Delete Document</button>
+        </div>
+    </div>
+
+    <div class="doc-photo">
+        <img id="truckLeaseAgreementPreview"
+             class="preview-image"
+             style="display:none;"
+             onclick="toggleFullScreen(this)">
+    </div>
+</div>
+
+<div class="doc-row">
+    <div class="doc-info">
+        <h3>Empty Weight Scale Ticket</h3>
+        <label>Ticket Date:</label><br>
+        <input id="truckEmptyWeightScaleDateInput"
+               type="date"
+               onchange="saveDate('truckEmptyWeightScaleDate', this.value)">
+        <div id="truckEmptyWeightScaleStatus" class="status"></div>
+
+        <div id="truckEmptyWeightScaleUploadBox"><br>
+            <input id="truckEmptyWeightScaleFileInput"
+                   type="file"
+                   accept="image/*,.pdf,application/pdf"
+                   capture="environment"
+                   onchange="saveDocument(event, 'truckEmptyWeightScale')">
+        </div>
+
+        <div id="truckEmptyWeightScaleSaved" class="saved-message"></div>
+        <div id="truckEmptyWeightScaleControls" style="display:none;">
+            <button class="doc-button" onclick="replaceDocument('truckEmptyWeightScale')">Replace Document</button>
+            <button class="doc-button delete-button" onclick="deleteDocument('truckEmptyWeightScale')">Delete Document</button>
+        </div>
+    </div>
+
+    <div class="doc-photo">
+        <img id="truckEmptyWeightScalePreview"
+             class="preview-image"
+             style="display:none;"
+             onclick="toggleFullScreen(this)">
+    </div>
+</div>
+
 </div>
 
 
@@ -1109,7 +1419,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Trailer Documents</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
     <!-- TRAILER REGISTRATION -->
@@ -1282,6 +1592,40 @@
 
     </div>
 
+
+    <!-- TRAILER LEASE AGREEMENT -->
+    <div class="doc-row">
+        <div class="doc-info">
+            <h3>Trailer Lease Agreement</h3>
+            <label>Expiration Date:</label><br>
+            <input id="trailerLeaseAgreementDateInput"
+                   type="date"
+                   onchange="saveDate('trailerLeaseAgreementDate', this.value)">
+            <div id="trailerLeaseAgreementStatus" class="status"></div>
+
+            <div id="trailerLeaseAgreementUploadBox"><br>
+                <input id="trailerLeaseAgreementFileInput"
+                       type="file"
+                       accept="image/*,.pdf,application/pdf"
+                       capture="environment"
+                       onchange="saveDocument(event, 'trailerLeaseAgreement')">
+            </div>
+
+            <div id="trailerLeaseAgreementSaved" class="saved-message"></div>
+            <div id="trailerLeaseAgreementControls" style="display:none;">
+                <button class="doc-button" onclick="replaceDocument('trailerLeaseAgreement')">Replace Document</button>
+                <button class="doc-button delete-button" onclick="deleteDocument('trailerLeaseAgreement')">Delete Document</button>
+            </div>
+        </div>
+
+        <div class="doc-photo">
+            <img id="trailerLeaseAgreementPreview"
+                 class="preview-image"
+                 style="display:none;"
+                 onclick="toggleFullScreen(this)">
+        </div>
+    </div>
+
 </div>
 
 
@@ -1294,7 +1638,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Permits</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 <!-- PERMIT 1 -->
     <div class="doc-row">
@@ -1449,7 +1793,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Inspection Mode</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
     <div id="inspectionLockBar" class="inspection-lock-bar">
@@ -1493,6 +1837,23 @@
         </p>
 
         <div id="inspectionEmailStatus" class="status"></div>
+
+        <hr>
+        <h3>ELD / Logbook File</h3>
+        <p class="inspection-note">
+            v1.2.01 prepares this slot. Save the ELD logbook file here so it can be shown in Inspection Mode later.
+        </p>
+        <input id="eldLogbookFileInput"
+               type="file"
+               accept="image/*,.pdf,application/pdf,.html,.txt"
+               onchange="saveDocument(event, 'eldLogbookFile')">
+        <div id="eldLogbookFileSaved" class="saved-message"></div>
+        <div id="eldLogbookFileUploadBox" style="display:none;"></div>
+        <div id="eldLogbookFileControls" style="display:none;">
+            <button class="doc-button" onclick="replaceDocument('eldLogbookFile')">Replace ELD File</button>
+            <button class="doc-button delete-button" onclick="deleteDocument('eldLogbookFile')">Delete ELD File</button>
+        </div>
+        <img id="eldLogbookFilePreview" class="preview-image" style="display:none;" onclick="toggleFullScreen(this)">
     </div>
 
     <div id="inspectionList" class="inspection-list"></div>
@@ -1531,14 +1892,14 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Receipt Vault</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
     <div class="receipt-form">
         <h3>Add Receipt</h3>
 
         <label>Category:</label><br>
-        <select id="receiptCategoryInput">
+        <select id="receiptCategoryInput" onchange="toggleFuelReceiptFields()">
             <option value="Fuel">Fuel</option>
             <option value="Repairs">Repairs</option>
             <option value="Food">Food</option>
@@ -1558,6 +1919,52 @@
                type="text"
                inputmode="decimal"
                placeholder="Example: 123.45">
+
+        <div id="fuelReceiptFields" class="fuel-fields-box">
+            <h3>Fuel Stop Details</h3>
+
+            <label>Fuel Location:</label><br>
+            <input id="fuelLocationInput"
+                   type="text"
+                   placeholder="Example: Love's, Boise ID">
+
+            <br><br>
+
+            <label>Fuel Gallons:</label><br>
+            <input id="fuelGallonsInput"
+                   type="text"
+                   inputmode="decimal"
+                   placeholder="Example: 123.45">
+
+            <br><br>
+
+            <label>Fuel Cost:</label><br>
+            <input id="fuelCostInput"
+                   type="text"
+                   inputmode="decimal"
+                   placeholder="Example: 456.78">
+
+            <br><br>
+
+            <label>DEF Cost:</label><br>
+            <input id="defCostInput"
+                   type="text"
+                   inputmode="decimal"
+                   placeholder="Example: 12.34">
+
+            <br><br>
+
+            <label>Current Odometer:</label><br>
+            <input id="fuelOdometerInput"
+                   type="text"
+                   inputmode="numeric"
+                   placeholder="Auto-filled from top odometer">
+
+            <p class="inspection-note">
+                Fuel receipts auto-fill this odometer from the top-left TruckDocs odometer.
+                You can override it here if needed.
+            </p>
+        </div>
 
         <br><br>
 
@@ -1635,7 +2042,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">Preventative Maintenance</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
     <br><br>
@@ -1948,6 +2355,32 @@
 
 
 
+
+<!-- MPG TRACKER SCREEN -->
+<div id="mpgTrackerScreen" style="display:none; padding:20px;">
+
+    <div class="screen-topbar">
+        <div class="topbar-left">
+            <button class="screen-home-button" onclick="goHome()">Home</button>
+        </div>
+        <div class="topbar-center">MPG Tracker</div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
+    </div>
+
+    <div class="mpg-summary-box">
+        <h3>MPG Tracker</h3>
+        <p><strong>Average MPG, last 10 fuel-ups:</strong> <span id="mpgAverageDisplay">Not enough fuel data yet</span></p>
+        <p><strong>Average CPMi, last 10 fuel-ups:</strong> <span id="cpmiAverageDisplay">Not enough fuel data yet</span></p>
+        <p class="inspection-note">
+            Fuel receipts now feed this MPG Tracker. Enter the truck odometer at the top-left before saving a Fuel receipt,
+            and TruckDocs will auto-fill the fuel receipt odometer.
+        </p>
+    </div>
+
+    <div id="mpgFuelList" class="mpg-summary-box"></div>
+
+</div>
+
 <!-- SETTINGS SCREEN -->
 <div id="settingsScreen"
      style="display:none; padding:20px;">
@@ -1957,7 +2390,7 @@
             <button class="screen-home-button" onclick="goHome()">Home</button>
         </div>
         <div class="topbar-center">TruckDocs App Settings</div>
-        <div class="topbar-right"></div>
+        <div class="topbar-right"><div class="topbar-status"></div></div>
     </div>
 
     <div class="settings-grid">
@@ -1972,6 +2405,13 @@
 
             <label>Company Name:</label><br>
             <input id="companyNameInput" type="text">
+
+            <br><br>
+
+            <label>Driver Number:</label><br>
+            <input id="driverNumberInput"
+                   type="text"
+                   placeholder="Example: 4225">
 
             <br><br>
 
@@ -2039,6 +2479,23 @@
         </div>
 
         <div class="settings-card">
+            <h3>Backup / Restore Settings</h3>
+
+            <label>Preferred Backup / Restore Location:</label><br>
+            <input id="backupPathInput"
+                   type="text"
+                   placeholder="iCloud Drive / TruckDocs Backups">
+
+            <p class="inspection-note">
+                TruckDocs will show this path as a reminder. iPhone/iPad still requires you to choose Save to Files manually.
+            </p>
+
+            <button class="doc-button" onclick="saveSettings()">
+                Save Backup Settings
+            </button>
+        </div>
+
+        <div class="settings-card">
             <h3>Home Screen Appearance</h3>
 
             <label>Home Menu Button Color:</label><br>
@@ -2093,6 +2550,16 @@
 
 </div>
 
+
+<!-- FIXED APP FOOTER -->
+<div id="appFooter" class="app-footer">
+    <div class="footer-left">
+        Documents Expired/Expiring = <span id="footerDocumentAlert" class="footer-ok">NONE</span>
+    </div>
+    <div class="footer-center" id="footerCenter"></div>
+    <div class="footer-right" id="footerRight"></div>
+</div>
+
 <script>
 
 const driverDateKeys = [
@@ -2104,13 +2571,16 @@ const truckDateKeys = [
     'truckRegistrationDate',
     'truckInsuranceDate',
     'truckAnnualInspectionDate',
-    'truckCabCardDate'
+    'truckCabCardDate',
+    'truckLeaseAgreementDate',
+    'truckEmptyWeightScaleDate'
 ];
 
 const trailerDateKeys = [
     'trailerRegistrationDate',
     'trailerInsuranceDate',
-    'trailerInspectionDate'
+    'trailerInspectionDate',
+    'trailerLeaseAgreementDate'
 ];
 
 const permitsDateKeys = [
@@ -2138,6 +2608,7 @@ function hideAllScreens() {
         'bolScreen',
         'receiptVaultScreen',
         'maintenanceScreen',
+        'mpgTrackerScreen',
         'settingsScreen'
     ];
 
@@ -2204,7 +2675,9 @@ function showTruck() {
 	loadSavedDocument('truckRegistration');
 	loadSavedDocument('truckInsurance');
 	loadSavedDocument('truckAnnualInspection');
-	loadSavedDocument('truckCabCard');                      
+	loadSavedDocument('truckCabCard');
+    loadSavedDocument('truckLeaseAgreement');
+    loadSavedDocument('truckEmptyWeightScale');
 
 truckDateKeys.forEach(loadDate);
 
@@ -2224,6 +2697,7 @@ function showTrailer() {
     loadSavedDocument('trailerRegistration');
     loadSavedDocument('trailerInsurance');
     loadSavedDocument('trailerInspection');
+    loadSavedDocument('trailerLeaseAgreement');
 
     trailerDateKeys.forEach(loadDate);
 
@@ -2284,6 +2758,7 @@ function showReceiptVault() {
         dateInput.value = new Date().toISOString().slice(0, 10);
     }
 
+    toggleFuelReceiptFields();
     renderReceiptVault();
 }
 
@@ -2295,6 +2770,17 @@ function showBackup() {
     document.getElementById('backupScreen').style.display = 'block';
 }
 
+
+
+
+/* ==================== SHOW MPG TRACKER ==================== */
+function showMPGTracker() {
+    hideAllScreens();
+    window.scrollTo(0, 0);
+    document.getElementById('mpgTrackerScreen').style.display = 'block';
+    renderMPGTracker();
+    updateTopbarStatusAreas();
+}
 
 
 
@@ -2333,6 +2819,7 @@ function showSettings() {
 function saveSettings() {
     localStorage.setItem('driverName', document.getElementById('driverNameInput').value.trim());
     localStorage.setItem('companyName', document.getElementById('companyNameInput').value.trim());
+    localStorage.setItem('driverNumber', document.getElementById('driverNumberInput').value.trim());
     localStorage.setItem('driverPhone', document.getElementById('driverPhoneInput').value.trim());
     localStorage.setItem('driverEmail', document.getElementById('driverEmailInput').value.trim());
     localStorage.setItem('driverDOT', document.getElementById('driverDOTInput').value.trim());
@@ -2340,6 +2827,11 @@ function saveSettings() {
     localStorage.setItem('driverPIN', document.getElementById('driverPINInput').value.trim());
     localStorage.setItem('recoveryQuestion', document.getElementById('recoveryQuestionInput').value.trim());
     localStorage.setItem('recoveryAnswer', document.getElementById('recoveryAnswerInput').value.trim());
+
+    const backupPathInput = document.getElementById('backupPathInput');
+    if (backupPathInput) {
+        localStorage.setItem('backupPath', backupPathInput.value.trim() || 'iCloud Drive / TruckDocs Backups');
+    }
 
     const menuColorInput = document.getElementById('menuColorInput');
     if (menuColorInput) {
@@ -2360,6 +2852,7 @@ function loadSettings() {
     const fields = [
         ['driverNameInput', 'driverName'],
         ['companyNameInput', 'companyName'],
+        ['driverNumberInput', 'driverNumber'],
         ['driverPhoneInput', 'driverPhone'],
         ['driverEmailInput', 'driverEmail'],
         ['driverDOTInput', 'driverDOT'],
@@ -2367,7 +2860,8 @@ function loadSettings() {
         ['driverPINInput', 'driverPIN'],
         ['recoveryQuestionInput', 'recoveryQuestion'],
         ['recoveryAnswerInput', 'recoveryAnswer'],
-        ['menuColorInput', 'homeMenuColor']
+        ['menuColorInput', 'homeMenuColor'],
+        ['backupPathInput', 'backupPath']
     ];
 
     fields.forEach(([inputId, storageKey]) => {
@@ -2384,6 +2878,8 @@ function loadSettings() {
 
     loadHomeBackgroundSettings();
     applyMenuColor();
+    updateBackupDisplays();
+    updateTopbarStatusAreas();
 }
 
 
@@ -2746,32 +3242,54 @@ function saveDocument(event, documentName) {
 
     if (!file) return;
 
-    compressImage(file, function(imageData) {
-
+    const finishSave = function(fileData) {
         try {
-            localStorage.setItem(documentName, imageData);
+            localStorage.setItem(documentName, fileData);
+            localStorage.setItem(documentName + 'FileName', file.name || '');
+            localStorage.setItem(documentName + 'FileType', file.type || '');
         } catch (error) {
-            alert('This image is still too large to save. Try a smaller photo.');
+            alert('This file is too large to save. Try a smaller photo or a shorter PDF.');
             return;
         }
 
-        showPreview(documentName, imageData);
+        showPreview(documentName, fileData);
 
         const savedMsg = document.getElementById(documentName + 'Saved');
         const controls = document.getElementById(documentName + 'Controls');
         const uploadBox = document.getElementById(documentName + 'UploadBox');
 
-        if (savedMsg) savedMsg.innerText = 'Document saved';
+        if (savedMsg) savedMsg.innerText = 'Document saved' + (file.name ? ': ' + file.name : '');
         if (controls) controls.style.display = 'block';
         if (uploadBox) uploadBox.style.display = 'none';
 
+        updateFooterDocumentAlert();
+        updateTopbarStatusAreas();
+    };
+
+    if (file.type === 'application/pdf' || (file.name || '').toLowerCase().endsWith('.pdf')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            finishSave(e.target.result);
+        };
+        reader.onerror = function() {
+            alert('Could not read that PDF file.');
+        };
+        reader.readAsDataURL(file);
+        event.target.value = '';
+        return;
+    }
+
+    compressImage(file, function(imageData) {
+        finishSave(imageData);
     });
+
+    event.target.value = '';
 }
 
 
 
 
-/* ===================== MAINTENANCE: ITEM LIST ===================== */
+/* ===================== MAINTENANCE: ITEM LIST/* ===================== MAINTENANCE: ITEM LIST ===================== */
 function getMaintenanceItems() {
     return [
         'oilLab',
@@ -2800,6 +3318,8 @@ function saveMaintenanceName(item, value) {
     localStorage.setItem('maintenanceData', JSON.stringify(data));
 
     updateMaintenanceMenuStatus();
+    updateFooterDocumentAlert();
+    updateTopbarStatusAreas();
 }
 
 
@@ -3025,7 +3545,7 @@ function loadSavedDocument(documentName) {
 
     if (controls) controls.style.display = 'block';
     if (uploadBox) uploadBox.style.display = 'none';
-    if (savedMsg) savedMsg.innerText = 'Document saved';
+    if (savedMsg) savedMsg.innerText = 'Document saved' + (localStorage.getItem(documentName + 'FileName') ? ': ' + localStorage.getItem(documentName + 'FileName') : '');
 }
 
 
@@ -3035,6 +3555,13 @@ function showPreview(documentName, imageData) {
     const preview = document.getElementById(documentName + 'Preview');
 
     if (!preview) return;
+
+    if (String(imageData || '').startsWith('data:application/pdf')) {
+        preview.removeAttribute('src');
+        preview.alt = 'PDF saved in TruckDocs';
+        preview.style.display = 'none';
+        return;
+    }
 
     preview.src = imageData;
     preview.style.display = 'inline-block';
@@ -3052,6 +3579,8 @@ function replaceDocument(documentName) {
 /* --------------------- New Section/Function --------------------- */
 function deleteDocument(documentName) {
     localStorage.removeItem(documentName);
+    localStorage.removeItem(documentName + 'FileName');
+    localStorage.removeItem(documentName + 'FileType');
 
     const preview = document.getElementById(documentName + 'Preview');
 
@@ -3063,6 +3592,8 @@ function deleteDocument(documentName) {
     document.getElementById(documentName + 'Saved').innerText = '';
     document.getElementById(documentName + 'Controls').style.display = 'none';
     document.getElementById(documentName + 'UploadBox').style.display = 'block';
+    updateFooterDocumentAlert();
+    updateTopbarStatusAreas();
 }
 
 
@@ -3091,6 +3622,7 @@ function saveDate(key, value) {
     localStorage.setItem(key, value);
     checkDateStatus(key, value);
     updateAllMenuStatuses();
+    updateFooterDocumentAlert();
 }
 
 
@@ -3153,6 +3685,11 @@ function saveOdometer(value) {
 
     document.getElementById('odometerInput').value =
         numbersOnly ? Number(numbersOnly).toLocaleString() : '';
+
+    const fuelOdometer = document.getElementById('fuelOdometerInput');
+    if (fuelOdometer && !fuelOdometer.value) {
+        fuelOdometer.value = numbersOnly ? Number(numbersOnly).toLocaleString() : '';
+    }
 
     updateAllMenuStatuses();
 }
@@ -3440,6 +3977,31 @@ function parseReceiptAmount(value) {
     return Number(String(value || '').replace(/[^0-9.]/g, '')) || 0;
 }
 
+function getCurrentTruckOdometerRaw() {
+    return String(localStorage.getItem('truckOdometer') || '').replace(/\D/g, '');
+}
+
+function formatMiles(value) {
+    const num = Number(String(value || '').replace(/\D/g, '')) || 0;
+    return num ? num.toLocaleString() : '';
+}
+
+function toggleFuelReceiptFields() {
+    const categoryInput = document.getElementById('receiptCategoryInput');
+    const box = document.getElementById('fuelReceiptFields');
+    const odoInput = document.getElementById('fuelOdometerInput');
+
+    if (!categoryInput || !box) return;
+
+    const isFuel = categoryInput.value === 'Fuel';
+    box.style.display = isFuel ? 'block' : 'none';
+
+    if (isFuel && odoInput && !odoInput.value) {
+        const currentOdo = getCurrentTruckOdometerRaw();
+        odoInput.value = currentOdo ? Number(currentOdo).toLocaleString() : '';
+    }
+}
+
 function clearReceiptForm() {
     document.getElementById('receiptCategoryInput').value = 'Fuel';
     document.getElementById('receiptAmountInput').value = '';
@@ -3447,20 +4009,65 @@ function clearReceiptForm() {
     document.getElementById('receiptNotesInput').value = '';
     document.getElementById('receiptFileInput').value = '';
 
+    const fuelLocation = document.getElementById('fuelLocationInput');
+    const fuelGallons = document.getElementById('fuelGallonsInput');
+    const fuelCost = document.getElementById('fuelCostInput');
+    const defCost = document.getElementById('defCostInput');
+    const fuelOdometer = document.getElementById('fuelOdometerInput');
+
+    if (fuelLocation) fuelLocation.value = '';
+    if (fuelGallons) fuelGallons.value = '';
+    if (fuelCost) fuelCost.value = '';
+    if (defCost) defCost.value = '';
+    if (fuelOdometer) {
+        const currentOdo = getCurrentTruckOdometerRaw();
+        fuelOdometer.value = currentOdo ? Number(currentOdo).toLocaleString() : '';
+    }
+
+    toggleFuelReceiptFields();
+
     const status = document.getElementById('receiptSavedStatus');
     if (status) status.innerText = '';
 }
 
 function saveReceipt() {
     const category = document.getElementById('receiptCategoryInput').value;
-    const amount = parseReceiptAmount(document.getElementById('receiptAmountInput').value);
+    let amount = parseReceiptAmount(document.getElementById('receiptAmountInput').value);
     const date = document.getElementById('receiptDateInput').value || new Date().toISOString().slice(0, 10);
     const notes = document.getElementById('receiptNotesInput').value.trim();
     const fileInput = document.getElementById('receiptFileInput');
     const file = fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
 
-    if (!amount && !notes && !file) {
+    const fuelData = {
+        location: '',
+        gallons: 0,
+        fuelCost: 0,
+        defCost: 0,
+        odometer: 0
+    };
+
+    if (category === 'Fuel') {
+        fuelData.location = (document.getElementById('fuelLocationInput')?.value || '').trim();
+        fuelData.gallons = parseReceiptAmount(document.getElementById('fuelGallonsInput')?.value || '');
+        fuelData.fuelCost = parseReceiptAmount(document.getElementById('fuelCostInput')?.value || '');
+        fuelData.defCost = parseReceiptAmount(document.getElementById('defCostInput')?.value || '');
+        fuelData.odometer = Number(String(document.getElementById('fuelOdometerInput')?.value || '').replace(/\D/g, '')) || 0;
+
+        const fuelTotal = fuelData.fuelCost + fuelData.defCost;
+        if (fuelTotal > 0) {
+            amount = fuelTotal;
+            const amountInput = document.getElementById('receiptAmountInput');
+            if (amountInput) amountInput.value = fuelTotal.toFixed(2);
+        }
+    }
+
+    if (!amount && !notes && !file && category !== 'Fuel') {
         alert('Enter an amount, a note, or choose a receipt picture/PDF.');
+        return;
+    }
+
+    if (category === 'Fuel' && (!fuelData.gallons || !fuelData.odometer)) {
+        alert('For fuel receipts, enter fuel gallons and current odometer. Fuel cost/DEF cost are strongly recommended for CPMi.');
         return;
     }
 
@@ -3470,6 +4077,7 @@ function saveReceipt() {
         amount: amount,
         date: date,
         notes: notes,
+        fuelData: category === 'Fuel' ? fuelData : null,
         fileName: file ? file.name : '',
         fileType: file ? file.type : '',
         fileData: ''
@@ -3548,6 +4156,8 @@ function finishSaveReceipt(receipt) {
 
     clearReceiptForm();
     renderReceiptVault();
+    renderMPGTracker();
+    updateTopbarStatusAreas();
 }
 
 function renderReceiptVault() {
@@ -3639,6 +4249,7 @@ function renderReceiptList() {
                 <h3>${escapeHtml(receipt.category)}</h3>
                 <p><strong>Amount:</strong> ${receiptCurrency(receipt.amount)}</p>
                 <p><strong>Date:</strong> ${escapeHtml(receipt.date || '')}</p>
+                ${getReceiptFuelDetailsHtml(receipt)}
                 ${receipt.notes ? '<p><strong>Notes:</strong> ' + escapeHtml(receipt.notes) + '</p>' : ''}
                 ${receipt.fileName ? '<p><strong>File:</strong> ' + escapeHtml(receipt.fileName) + '</p>' : ''}
 
@@ -3657,6 +4268,22 @@ function renderReceiptList() {
     });
 }
 
+function getReceiptFuelDetailsHtml(receipt) {
+    if (!receipt || receipt.category !== 'Fuel' || !receipt.fuelData) return '';
+
+    const fuel = receipt.fuelData;
+    let html = '<div class="mpg-note">';
+
+    if (fuel.location) html += '<p><strong>Fuel Location:</strong> ' + escapeHtml(fuel.location) + '</p>';
+    html += '<p><strong>Fuel Gallons:</strong> ' + escapeHtml(Number(fuel.gallons || 0).toFixed(2)) + '</p>';
+    html += '<p><strong>Fuel Cost:</strong> ' + receiptCurrency(fuel.fuelCost || 0) + '</p>';
+    html += '<p><strong>DEF Cost:</strong> ' + receiptCurrency(fuel.defCost || 0) + '</p>';
+    html += '<p><strong>Fuel Odometer:</strong> ' + escapeHtml(formatMiles(fuel.odometer || 0)) + '</p>';
+    html += '</div>';
+
+    return html;
+}
+
 function deleteReceipt(receiptId) {
     if (!confirm('Delete this receipt?')) return;
 
@@ -3664,6 +4291,8 @@ function deleteReceipt(receiptId) {
     receipts = receipts.filter(receipt => receipt.id !== receiptId);
     saveReceipts(receipts);
     renderReceiptVault();
+    renderMPGTracker();
+    updateTopbarStatusAreas();
 }
 
 function deleteAllReceipts() {
@@ -3671,6 +4300,8 @@ function deleteAllReceipts() {
 
     localStorage.removeItem('receiptVaultData');
     renderReceiptVault();
+    renderMPGTracker();
+    updateTopbarStatusAreas();
 }
 
 function exportReceiptReport() {
@@ -3715,6 +4346,7 @@ function exportReceiptReport() {
             <div class="receipt">
                 <h2>${escapeHtml(receipt.category)} - ${receiptCurrency(receipt.amount)}</h2>
                 <p><strong>Date:</strong> ${escapeHtml(receipt.date || '')}</p>
+                ${getReceiptFuelDetailsHtml(receipt)}
                 ${receipt.notes ? '<p><strong>Notes:</strong> ' + escapeHtml(receipt.notes) + '</p>' : ''}
                 ${receipt.fileName ? '<p><strong>File:</strong> ' + escapeHtml(receipt.fileName) + '</p>' : ''}
                 ${fileHtml}
@@ -3763,6 +4395,247 @@ function escapeHtml(value) {
 }
 
 
+/* ===================== APP STATUS / BACKUP HELPERS ===================== */
+function safeFilePart(value, fallback) {
+    const cleaned = String(value || '')
+        .trim()
+        .replace(/[^a-zA-Z0-9_-]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+
+    return cleaned || fallback;
+}
+
+function getDriverLastName() {
+    const fullName = localStorage.getItem('driverName') || '';
+    const parts = fullName.trim().split(/\s+/).filter(Boolean);
+    return parts.length ? parts[parts.length - 1] : 'Driver';
+}
+
+function buildBackupFileName() {
+    const lastName = safeFilePart(getDriverLastName(), 'Driver');
+    const driverNumber = safeFilePart(localStorage.getItem('driverNumber') || '', 'NoDriverNumber');
+    const now = new Date();
+    const date = now.toISOString().slice(0, 10);
+    const time = String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0') + String(now.getSeconds()).padStart(2, '0');
+
+    return lastName + '-' + driverNumber + '-' + date + '-' + time + '.json';
+}
+
+function recordLastBackup(fileName, path) {
+    localStorage.setItem('lastBackupDateTime', new Date().toLocaleString());
+    localStorage.setItem('lastBackupFileName', fileName || '');
+    localStorage.setItem('lastBackupPath', path || localStorage.getItem('backupPath') || 'iCloud Drive / TruckDocs Backups');
+    updateBackupDisplays();
+    updateTopbarStatusAreas();
+}
+
+function updateBackupDisplays() {
+    const lastBackup = localStorage.getItem('lastBackupDateTime') || 'Never';
+    const lastBackupFile = localStorage.getItem('lastBackupFileName') || '';
+    const path = localStorage.getItem('backupPath') || localStorage.getItem('lastBackupPath') || 'iCloud Drive / TruckDocs Backups';
+
+    const lastBackupDisplay = document.getElementById('lastBackupDisplay');
+    if (lastBackupDisplay) {
+        lastBackupDisplay.innerText = lastBackupFile ? lastBackup + ' (' + lastBackupFile + ')' : lastBackup;
+    }
+
+    const backupPathDisplay = document.getElementById('backupPathDisplay');
+    if (backupPathDisplay) {
+        backupPathDisplay.innerText = path;
+    }
+
+    const backupPathInput = document.getElementById('backupPathInput');
+    if (backupPathInput && !backupPathInput.value) {
+        backupPathInput.value = path;
+    }
+}
+
+function getTopbarStatusHtml() {
+    const mpg = localStorage.getItem('avgMPGLast10') || '--';
+    const cpmi = localStorage.getItem('avgCPMILast10') || '--';
+
+    return 'AVG MPG: ' + mpg + ' &nbsp; AVG CPMi: ' + cpmi;
+}
+
+function updateTopbarStatusAreas() {
+    document.querySelectorAll('.topbar-status').forEach(function(el) {
+        el.innerHTML = '';
+    });
+
+    const mpgScreen = document.getElementById('mpgTrackerScreen');
+    if (mpgScreen && mpgScreen.style.display !== 'none') {
+        const mpgStatus = mpgScreen.querySelector('.topbar-status');
+        if (mpgStatus) {
+            mpgStatus.innerHTML = getTopbarStatusHtml();
+        }
+    }
+
+    const footerRight = document.getElementById('footerRight');
+    if (footerRight) {
+        footerRight.innerHTML = 'Last Backup: ' + (localStorage.getItem('lastBackupDateTime') || 'Never');
+    }
+}
+
+function countExpiredOrExpiringDocuments() {
+    const allKeys = driverDateKeys.concat(truckDateKeys, trailerDateKeys, permitsDateKeys);
+    let count = 0;
+
+    allKeys.forEach(function(key) {
+        const value = localStorage.getItem(key);
+        if (!value) return;
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        const expDate = new Date(value);
+        expDate.setHours(0,0,0,0);
+
+        const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 30) {
+            count++;
+        }
+    });
+
+    return count;
+}
+
+function updateFooterDocumentAlert() {
+    const alertEl = document.getElementById('footerDocumentAlert');
+    if (!alertEl) return;
+
+    const count = countExpiredOrExpiringDocuments();
+
+    if (count > 0) {
+        alertEl.innerText = count + ' or more';
+        alertEl.className = 'footer-bad';
+    } else {
+        alertEl.innerText = 'NONE';
+        alertEl.className = 'footer-ok';
+    }
+}
+
+function getFuelReceiptsSorted() {
+    return getReceipts()
+        .filter(function(receipt) {
+            return receipt.category === 'Fuel' && receipt.fuelData && Number(receipt.fuelData.odometer || 0) > 0;
+        })
+        .sort(function(a, b) {
+            const dateCompare = String(a.date || '').localeCompare(String(b.date || ''));
+            return dateCompare || Number(a.id || 0) - Number(b.id || 0);
+        });
+}
+
+function buildFuelMpgRows() {
+    const fuelReceipts = getFuelReceiptsSorted();
+    const rows = [];
+    let previousOdometer = null;
+
+    fuelReceipts.forEach(function(receipt) {
+        const fuel = receipt.fuelData || {};
+        const odometer = Number(fuel.odometer || 0);
+        const gallons = Number(fuel.gallons || 0);
+        const totalCost = Number(fuel.fuelCost || 0) + Number(fuel.defCost || 0);
+        const miles = previousOdometer !== null ? odometer - previousOdometer : 0;
+        const mpg = miles > 0 && gallons > 0 ? miles / gallons : 0;
+        const cpmi = miles > 0 && totalCost > 0 ? totalCost / miles : 0;
+
+        rows.push({
+            receipt: receipt,
+            date: receipt.date || '',
+            location: fuel.location || '',
+            gallons: gallons,
+            fuelCost: Number(fuel.fuelCost || 0),
+            defCost: Number(fuel.defCost || 0),
+            totalCost: totalCost,
+            odometer: odometer,
+            miles: miles,
+            mpg: mpg,
+            cpmi: cpmi,
+            validForAverage: miles > 0 && gallons > 0
+        });
+
+        previousOdometer = odometer;
+    });
+
+    return rows;
+}
+
+function calculateMpgAverages(rows) {
+    const validRows = rows.filter(function(row) {
+        return row.validForAverage;
+    });
+
+    const last10 = validRows.slice(-10);
+
+    if (last10.length === 0) {
+        localStorage.setItem('avgMPGLast10', '--');
+        localStorage.setItem('avgCPMILast10', '--');
+        return { avgMPG: 'Not enough fuel data yet', avgCPMI: 'Not enough fuel data yet' };
+    }
+
+    const totalMPG = last10.reduce(function(sum, row) { return sum + row.mpg; }, 0);
+    const cpmiRows = last10.filter(function(row) { return row.cpmi > 0; });
+    const totalCPMI = cpmiRows.reduce(function(sum, row) { return sum + row.cpmi; }, 0);
+
+    const avgMPGNumber = totalMPG / last10.length;
+    const avgCPMINumber = cpmiRows.length ? totalCPMI / cpmiRows.length : 0;
+
+    const avgMPG = avgMPGNumber.toFixed(2);
+    const avgCPMI = avgCPMINumber ? receiptCurrency(avgCPMINumber) : 'Not enough cost data yet';
+
+    localStorage.setItem('avgMPGLast10', avgMPG);
+    localStorage.setItem('avgCPMILast10', avgCPMINumber ? receiptCurrency(avgCPMINumber) : '--');
+
+    return { avgMPG: avgMPG, avgCPMI: avgCPMI };
+}
+
+function renderMPGTracker() {
+    const rows = buildFuelMpgRows();
+    const averages = calculateMpgAverages(rows);
+
+    const mpgDisplay = document.getElementById('mpgAverageDisplay');
+    const cpmiDisplay = document.getElementById('cpmiAverageDisplay');
+    const list = document.getElementById('mpgFuelList');
+
+    if (mpgDisplay) mpgDisplay.innerText = averages.avgMPG;
+    if (cpmiDisplay) cpmiDisplay.innerText = averages.avgCPMI;
+
+    if (!list) return;
+
+    if (rows.length === 0) {
+        list.innerHTML = '<h3>Fuel Receipt Feed</h3><p class="inspection-note">No fuel receipts saved yet. Add a Fuel receipt in Receipt Vault to start tracking MPG.</p>';
+        return;
+    }
+
+    let html = '<h3>Fuel Receipt Feed</h3>';
+    html += '<p class="inspection-note">First fuel stop becomes the starting odometer. MPG begins calculating after the second fuel receipt.</p>';
+    html += '<table class="mpg-table">';
+    html += '<thead><tr>';
+    html += '<th>Date</th><th>Location</th><th>Gallons</th><th>Fuel + DEF</th><th>Odometer</th><th>Miles</th><th>MPG</th><th>CPMi</th>';
+    html += '</tr></thead><tbody>';
+
+    rows.slice().reverse().forEach(function(row) {
+        html += '<tr>';
+        html += '<td>' + escapeHtml(row.date) + '</td>';
+        html += '<td>' + escapeHtml(row.location || '') + '</td>';
+        html += '<td>' + (row.gallons ? row.gallons.toFixed(2) : '') + '</td>';
+        html += '<td>' + receiptCurrency(row.totalCost) + '</td>';
+        html += '<td>' + escapeHtml(formatMiles(row.odometer)) + '</td>';
+        html += '<td>' + (row.miles > 0 ? row.miles.toLocaleString() : 'Start') + '</td>';
+        html += '<td>' + (row.mpg > 0 ? row.mpg.toFixed(2) : '--') + '</td>';
+        html += '<td>' + (row.cpmi > 0 ? receiptCurrency(row.cpmi) : '--') + '</td>';
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
+
+    list.innerHTML = html;
+}
+
+
+
 /* ===================== BACKUP FUNCTIONS ===================== */
 
 async function exportBackup() {
@@ -3775,44 +4648,59 @@ async function exportBackup() {
     }
 
     const backupText = JSON.stringify(backupData, null, 2);
-    const today = new Date().toISOString().slice(0, 10);
-    const fileName = 'TruckDocs-Backup-' + today + '.json';
+    const fileName = buildBackupFileName();
     const blob = new Blob([backupText], { type: 'application/json' });
     const status = document.getElementById('backupStatus');
+    const preferredPath = localStorage.getItem('backupPath') || 'iCloud Drive / TruckDocs Backups';
 
-    // iPhone / iPad preferred method:
-    // Open the native Share Sheet so the driver can choose
-    // Save to Files > iCloud Drive > TruckDocs Backups.
-    try {
-        const backupFile = new File([blob], fileName, { type: 'application/json' });
+    // IMPORTANT v1.2.07:
+    // Desktop/local testing should use the normal download method.
+    // iPhone/iPad/Android should try the native Share Sheet first.
+    // If the Share Sheet is blocked for any reason other than user cancel,
+    // fall back to the normal download method instead of stopping the backup.
+    const isMobileShareDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent || '');
 
-        if (navigator.canShare && navigator.canShare({ files: [backupFile] }) && navigator.share) {
-            await navigator.share({
-                files: [backupFile],
-                title: 'TruckDocs Backup',
-                text: 'Save this TruckDocs backup to iCloud Drive or another safe location.'
-            });
+    if (isMobileShareDevice) {
+        try {
+            const backupFile = new File([blob], fileName, { type: 'application/json' });
 
-            if (status) {
-                status.innerText = 'Backup ready. Choose Save to Files > iCloud Drive to keep ' + fileName + '.';
+            if (navigator.canShare && navigator.canShare({ files: [backupFile] }) && navigator.share) {
+                await navigator.share({
+                    files: [backupFile],
+                    title: 'TruckDocs Backup',
+                    text: 'Save this TruckDocs backup to: ' + preferredPath
+                });
+
+                recordLastBackup(fileName, preferredPath);
+
+                if (status) {
+                    status.innerText = 'Backup prepared: ' + fileName + '. Choose Save to Files > ' + preferredPath + '.';
+                }
+
+                return;
+            }
+        } catch (shareError) {
+            const errorName = shareError && shareError.name ? shareError.name : '';
+
+            if (errorName === 'AbortError') {
+                if (status) {
+                    status.innerText = 'Backup was canceled. Tap Export Backup again and choose Save to Files.';
+                }
+                return;
             }
 
-            return;
+            // If sharing failed because the browser/viewer blocked it,
+            // continue into the normal download fallback below.
         }
-    } catch (shareError) {
-        // If the user cancels the Share Sheet, do not treat it as a broken app.
-        if (status) {
-            status.innerText = 'Backup was not saved yet. Tap Export Backup again and choose Save to Files.';
-        }
-        return;
     }
 
-    // Windows / desktop fallback method:
-    // This still works in normal browsers that allow downloads.
+    // Windows / desktop / browser fallback method.
+    // This is also used if Share Sheet is not available.
     try {
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = fileName;
+        link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -3821,15 +4709,17 @@ async function exportBackup() {
             URL.revokeObjectURL(link.href);
         }, 1000);
 
+        recordLastBackup(fileName, preferredPath);
+
         if (status) {
-            status.innerText = 'Backup exported successfully. Look for ' + fileName + '.';
+            status.innerText = 'Backup exported successfully. Look for ' + fileName + '. Preferred save location: ' + preferredPath + '.';
         }
     } catch (downloadError) {
         if (status) {
-            status.innerText = 'This viewer blocked backup export. Open TruckDocs in Safari/Home Screen mode, or use the official app when available.';
+            status.innerText = 'This viewer blocked backup export. Open TruckDocs from the GitHub Pages web address or Home Screen icon.';
         }
 
-        alert('This viewer blocked backup export. On iPhone, use the Share Sheet version from Safari/Home Screen mode when possible.');
+        alert('This viewer blocked backup export. Open TruckDocs from the GitHub Pages web address or Home Screen icon.');
     }
 }
 
@@ -3936,6 +4826,7 @@ function importBackup(event) {
 /* --------------------- New Section/Function --------------------- */
 function loadInspectionData() {
     loadText('inspectionEmail');
+    loadSavedDocument('eldLogbookFile');
     renderInspectionItems();
 }
 
@@ -3948,10 +4839,14 @@ function getInspectionItems() {
         { title: 'Truck Insurance', key: 'truckInsurance', dateKey: 'truckInsuranceDate', group: 'Truck' },
         { title: 'Truck Annual Inspection', key: 'truckAnnualInspection', dateKey: 'truckAnnualInspectionDate', group: 'Truck' },
         { title: 'Cab Card', key: 'truckCabCard', dateKey: 'truckCabCardDate', group: 'Truck' },
+        { title: 'Truck Lease Agreement', key: 'truckLeaseAgreement', dateKey: 'truckLeaseAgreementDate', group: 'Truck' },
+        { title: 'Empty Weight Scale Ticket', key: 'truckEmptyWeightScale', dateKey: 'truckEmptyWeightScaleDate', group: 'Truck' },
+        { title: 'ELD Logbook File', key: 'eldLogbookFile', dateKey: '', group: 'ELD' },
 
         { title: 'Trailer Registration', key: 'trailerRegistration', dateKey: 'trailerRegistrationDate', group: 'Trailer' },
         { title: 'Trailer Insurance', key: 'trailerInsurance', dateKey: 'trailerInsuranceDate', group: 'Trailer' },
         { title: 'Trailer Annual Inspection', key: 'trailerInspection', dateKey: 'trailerInspectionDate', group: 'Trailer' },
+        { title: 'Trailer Lease Agreement', key: 'trailerLeaseAgreement', dateKey: 'trailerLeaseAgreementDate', group: 'Trailer' },
 
         { title: localStorage.getItem('permit1Name') || 'Permit 1', key: 'permit1', dateKey: 'permit1Date', group: 'Permits' },
         { title: localStorage.getItem('permit2Name') || 'Permit 2', key: 'permit2', dateKey: 'permit2Date', group: 'Permits' },
@@ -4305,6 +5200,10 @@ window.onload = function() {
     applyMenuColor();
     updateAllMenuStatuses();
     applyHomeBackground();
+    updateBackupDisplays();
+    updateFooterDocumentAlert();
+    renderMPGTracker();
+    updateTopbarStatusAreas();
 
     if (localStorage.getItem('inspectionLockActive') === 'true') {
         showInspectionLocked(false);
@@ -4348,6 +5247,19 @@ window.addEventListener('focus', function() {
 
 history.pushState(null, '', window.location.href);
 
+
+
+/* ==================== HORIZONTAL SAFETY RESET ==================== */
+function resetHorizontalScroll() {
+    try {
+        window.scrollTo(0, window.scrollY || 0);
+        document.documentElement.scrollLeft = 0;
+        document.body.scrollLeft = 0;
+    } catch (e) {}
+}
+
+window.addEventListener('load', resetHorizontalScroll);
+window.addEventListener('resize', resetHorizontalScroll);
 </script>
 </body>
 </html>
